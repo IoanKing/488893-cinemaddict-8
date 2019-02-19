@@ -1,7 +1,7 @@
 # Личный проект «Киноман» [![Build status][travis-image]][travis-url]
 
 * Студент: [Иван Суслов](https://up.htmlacademy.ru/ecmascript/8/user/488893).
-* Наставник: `Неизвестно`.
+* Наставник: [Виталий Усик](https://up.htmlacademy.ru/ecmascript/8/user/235226).
 
 ---
 
