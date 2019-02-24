@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700,800&amp;subset=cyrillic-ext" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" media="screen" href="./css/normalize.css" />
+  <link rel="stylesheet" type="text/css" media="screen" href="./css/main.css" />
+  <title>Moowle</title>
+</head>
+<body>
+
+<header class="header">
+  <h1 class="header__logo logo">Moowle</h1>
+  <form class="header__search search">
+    <input type="text" name="search" class="search__field" placeholder="Search">
+    <button type="submit" class="visually-hidden">Search</button>
+  </form>
+  <section class="header__profile profile">
+    <p class="profile__rating">Show adept</p>
+  </section>
+</header>
+
+<main class="main">
+  <nav class="main-navigation">
+    <a href="#all" class="main-navigation__item main-navigation__item--active">All movies</a>
+    <a href="#watchlist" class="main-navigation__item">Watchlist <span class="main-navigation__item-count">13</span></a>
+    <a href="#history" class="main-navigation__item">History <span class="main-navigation__item-count">4</span></a>
+    <a href="#favorites" class="main-navigation__item">Favorites <span class="main-navigation__item-count">8</span></a>
+    <a href="#stats" class="main-navigation__item main-navigation__item--additional">Stats</a>
+  </nav>
+
+  <section class="films">
+    <section class="films-list">
+      <h2 class="films-list__title visually-hidden">All movies. Upcoming</h2>
+
+      <div class="films-list__container">
+        <article class="film-card">
+          <h3 class="film-card__title">The Assassination Of Jessie James By The Coward Robert Ford</h3>
+          <p class="film-card__rating">9.8</p>
+          <p class="film-card__info">
+            <span class="film-card__year">2018</span>
+            <span class="film-card__duration">1h&nbsp;13m</span>
+            <span class="film-card__genre">Comedy</span>
+          </p>
+          <img src="./images/posters/three-friends.jpg" alt="" class="film-card__poster">
+          <p class="film-card__description">A priest with a haunted past and a novice on the threshold of her final vows are sent by the Vatican to investigate the death of a young nun in Romania and confront a malevolent force in the form of a demonic nun.</p>
+          <button class="film-card__comments">13 comments</button>
+
+          <form class="film-card__controls">
+            <button class="film-card__controls-item button film-card__controls-item--add-to-watchlist"><!--Add to watchlist--> WL</button>
+            <button class="film-card__controls-item button film-card__controls-item--mark-as-watched"><!--Mark as watched-->WTCHD</button>
+            <button class="film-card__controls-item button film-card__controls-item--favorite"><!--Mark as favorite-->FAV</button>
+          </form>
+        </article>
+
+        <article class="film-card">
+          <h3 class="film-card__title">Incredibles 2</h3>
+          <p class="film-card__rating">9.8</p>
+          <p class="film-card__info">
+            <span class="film-card__year">2018</span>
+            <span class="film-card__duration">1h&nbsp;13m</span>
+            <span class="film-card__genre">Comedy</span>
+          </p>
+          <img src="./images/posters/moonrise.jpg" alt="" class="film-card__poster">
+          <p class="film-card__description">A priests Romania and confront a malevolent force in the form of a demonic nun.</p>
+          <button class="film-card__comments">13 comments</button>
+
+          <form class="film-card__controls">
+            <button class="film-card__controls-item button film-card__controls-item--add-to-watchlist">Add to watchlist</button>
+            <button class="film-card__controls-item button film-card__controls-item--mark-as-watched">Mark as watched</button>
+            <button class="film-card__controls-item button film-card__controls-item--favorite">Mark as favorite</button>
+          </form>
+        </article>
+      </div>
+
+      <button class="films-list__show-more">Show more</button>
+    </section>
+
+    <section class="films-list--extra">
+      <h2 class="films-list__title">Top rated</h2>
+
+      <div class="films-list__container">
+        <article class="film-card film-card--no-controls">
+          <h3 class="film-card__title">Incredibles 2</h3>
+          <p class="film-card__rating">9.8</p>
+          <p class="film-card__info">
+            <span class="film-card__year">2018</span>
+            <span class="film-card__duration">1h&nbsp;13m</span>
+            <span class="film-card__genre">Comedy</span>
+          </p>
+          <img src="./images/posters/fuga-da-new-york.jpg" alt="" class="film-card__poster">
+          <button class="film-card__comments">13 comments</button>
+        </article>
+
+        <article class="film-card film-card--no-controls">
+          <h3 class="film-card__title">Incredibles 2</h3>
+          <p class="film-card__rating">9.8</p>
+          <p class="film-card__info">
+            <span class="film-card__year">2018</span>
+            <span class="film-card__duration">1h&nbsp;13m</span>
+            <span class="film-card__genre">Comedy</span>
+          </p>
+          <img src="./images/posters/blue-blazes.jpg" alt="" class="film-card__poster">
+
+          <button class="film-card__comments">13 comments</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="films-list--extra">
+      <h2 class="films-list__title">Most commented</h2>
+
+      <div class="films-list__container">
+        <article class="film-card film-card--no-controls">
+          <h3 class="film-card__title">Incredibles 2</h3>
+          <p class="film-card__rating">9.8</p>
+          <p class="film-card__info">
+            <span class="film-card__year">2018</span>
+            <span class="film-card__duration">1h&nbsp;13m</span>
+            <span class="film-card__genre">Comedy</span>
+          </p>
+
+          <img src="./images/posters/accused.jpg" alt="Accused" class="film-card__poster">
+
+          <button class="film-card__comments">13 comments</button>
+        </article>
+
+        <article class="film-card film-card--no-controls">
+          <h3 class="film-card__title">Incredibles 2</h3>
+          <p class="film-card__rating">9.8</p>
+
+          <p class="film-card__info">
+            <span class="film-card__year">2018</span>
+            <span class="film-card__duration">1h&nbsp;13m</span>
+            <span class="film-card__genre">Comedy</span>
+          </p>
+
+          <img src="./images/posters/blackmail.jpg" alt="" class="film-card__poster">
+
+          <button class="film-card__comments">13 comments</button>
+        </article>
+      </div>
+    </section>
+  </section>
+</main>
+
+
+<footer class="footer">
+  <section class="footer__logo logo logo--smaller">Moowle</section>
+  <section class="footer__statistics">
+    <p>130&thinsp;291 movies inside</p>
+  </section>
+</footer>
+
+</body>
+</html>
