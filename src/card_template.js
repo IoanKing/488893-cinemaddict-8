@@ -10,10 +10,10 @@ export default (element, isControls = false) => `
     <p class="film-card__rating">${element.rating}</p>
     <p class="film-card__info">
       <span class="film-card__year">${element.year}</span>
-      <span class="film-card__duration">${element.duration}</span>
+      <span class="film-card__duration">${(element.duration) >= 60 ? `${Math.floor(element.duration / 60)}h ${element.duration % 60}m` : `${element.duration}m`}</span>
       <span class="film-card__genre">${element.genre}</span>
     </p>
-    <img src="./images/posters/${element.poster}" alt="" class="film-card__poster">
+    <img src="${element.poster}" alt="" class="film-card__poster">
     ${(isControls) ? `<p class="film-card__description">${element.description}</p>` : ``}
     <button class="film-card__comments">${element.comments.length} comment${(element.comments.length > 1) ? `s` : ``}</button>
 

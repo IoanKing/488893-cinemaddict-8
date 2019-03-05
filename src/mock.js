@@ -1,15 +1,37 @@
-import {getRandomInt, getRandomElement} from "./utils";
+import {getRandomInt, getRandomElement, getRandomFloat} from "./utils";
 
 const MAX_MOVIE_COUNT = 20;
 const DEFAULT_MOVIE_COUNT = 7;
+
+const MIN_COMMENT_COUNT = 0;
 const MAX_COMMENT_COUNT = 30;
 
+const MIN_SENTENTES = 1;
+const MAX_SENTENTES = 3;
+
+const Ratings = {
+  MIN: 80,
+  MAX: 100
+};
+
+const Duration = {
+  MIN: 55,
+  MAX: 145
+};
+
+const Years = {
+  MIN: 1965,
+  MAX: 2018
+};
+
+
 const MockData = {
-  TITLES: [`The Assassination Of Jessie James By The Coward Robert Ford`,
+  TITLES: [
+    `Far Far Far Away`,
     `Incredibles 2`,
     `WALL-E`,
     `Blackmail`,
-    `Z.A.W`,
+    `R.A.B.B.I.T`,
     `Rabbit of the OZ`,
     `Last agent 999`,
     `Bad romance`,
@@ -19,21 +41,28 @@ const MockData = {
     `Adventure of the Lemmingtoon`,
     `Train to the Hell`,
     `Lord if the apples`,
-    `Gorgeous ten`],
+    `Gorgeous ten`,
+    `Alice and smallworld`],
   ADDITIONAL: [true, false],
-  RATINGS: [`9.8`, `8.1`, `7.8`, `9.5`, `8.9`, `9.1`, `6.5`, `2.0`, `7.5`, `9.3`],
-  YEARS: [`2018`, `2017`, `2016`, `2015`, `2014`, `2013`, `2012`, `2011`, `2010`, `2009`, `2008`, `2007`, `2006`, `2005`],
-  DURATIONS: [`1h&nbsp;13m`, `1h&nbsp;20m`, `1h&nbsp;15m`, `1h&nbsp;05m`, `1h&nbsp;00m`, `2h&nbsp;10m`, `1h&nbsp;40m`, `1h&nbsp;35m`, `1h&nbsp;45m`, `55m`],
-  GENRES: [`Comedy`, `Horror`, `Action`, `Dram`, `Adventure`],
-  IMAGES: [`blue-blazes.jpg`,
-    `accused.jpg`,
-    `blackmail.jpg`,
-    `fuga-da-new-york.jpg`,
-    `moonrise.jpg`,
-    `three-friends.jpg`],
-  COMMENTS: [`Комментарий 1`, `Комментарий 2`, `Комментарий 3`, `Комментарий 4`],
-  DESCTIPTIONS: [`A priest with a haunted past and a novice on the threshold of her final vows are sent by the Vatican to investigate the death of a young nun in Romania and confront a malevolent force in the form of a demonic nun.`,
-    `A priests Romania and confront a malevolent force in the form of a demonic nun.`]
+  GENRES: [
+    `Comedy`,
+    `Horror`,
+    `Action`,
+    `Dram`,
+    `Adventure`,
+    `Animation`
+  ],
+  TEXTS: [
+    `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget.`,
+    `Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra.`,
+    `Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante.`,
+    `Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum.`,
+    `Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui.`,
+    `Sed sed nisi sed augue convallis suscipit in sed felis.`,
+    `Aliquam erat volutpat.`,
+    `Nunc fermentum tortor ac porta dapibus.`,
+    `In rutrum ac purus sit amet tempus.`,
+  ]
 };
 
 const FilterMockData = [
@@ -59,34 +88,31 @@ const FilterMockData = [
   }
 ];
 
+const getCard = () => ({
+  title: MockData.TITLES[getRandomInt(0, MockData.TITLES.length)],
+  rating: getRandomFloat(Ratings.MIN, Ratings.MAX),
+  year: getRandomInt(Years.MIN, Years.MAX),
+  duration: getRandomInt(Duration.MIN, Duration.MAX),
+  genre: MockData.GENRES[getRandomInt(0, MockData.GENRES.length)],
+  poster: `http://picsum.photos/232/342?r=${Math.random()}`,
+  description: new Array(getRandomInt(MIN_SENTENTES, MAX_SENTENTES))
+  .fill()
+  .map(() => getRandomElement(MockData.TEXTS)).join(` `),
+  comments: new Array(getRandomInt(MIN_COMMENT_COUNT, MAX_COMMENT_COUNT))
+    .fill()
+    .map(() => getRandomElement(MockData.TEXTS)),
+  isAdditional: MockData.ADDITIONAL[getRandomInt(0, MockData.ADDITIONAL.length)]
+});
+
 /**
  * Генерация коллекции случайных карточек задач.
  * @param {number} countCollection количество карточек задач.
  * @return {object} коллекция объектов.
  */
 const getMockCollection = (countCollection) => {
-  const collection = [];
-  for (let i = 0; i < countCollection; i++) {
-    const countComment = getRandomInt(0, MAX_COMMENT_COUNT);
-    const newComments = [];
-    const commentData = MockData.COMMENTS.slice();
-    for (let j = 0; j < countComment; j++) {
-      const tagIndex = getRandomInt(0, commentData.length);
-      newComments.push(commentData[tagIndex]);
-    }
-    const newElement = {
-      title: getRandomElement(MockData.TITLES),
-      isAdditional: getRandomElement(MockData.ADDITIONAL),
-      rating: getRandomElement(MockData.RATINGS),
-      year: getRandomElement(MockData.YEARS),
-      duration: getRandomElement(MockData.DURATIONS),
-      genre: getRandomElement(MockData.GENRES),
-      poster: getRandomElement(MockData.IMAGES),
-      description: getRandomElement(MockData.DESCTIPTIONS),
-      comments: newComments,
-    };
-    collection.push(newElement);
-  }
+  let collection = new Array(countCollection)
+    .fill()
+    .map(() => getCard());
   return collection;
 };
 
