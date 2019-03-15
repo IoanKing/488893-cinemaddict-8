@@ -3,7 +3,10 @@ export default {
   NAVIGATION_ITEM: `main-navigation__item`,
   FILM_LIST: `films-list`,
   CONTAINER: `films-list__container`,
-  ALL_MOVIE: `#all-movie`,
-  TOP_MOVIE: `#top-movie`,
-  COMMENTED_MOVIE: `#commented-movie`,
+  ALL_MOVIE: `all-movie`,
+  TOP_MOVIE: `top-movie`,
+  COMMENTED_MOVIE: `commented-movie`,
+  BTN_COMMENTS: `film-card__comments`,
+  BTH_CLOSE: `film-details__close-btn`,
+  BODY: `body`
 };

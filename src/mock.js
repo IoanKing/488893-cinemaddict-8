@@ -1,7 +1,6 @@
 import {getRandomInt, getRandomElement, getRandomFloat} from "./utils";
 
-const MAX_MOVIE_COUNT = 20;
-const DEFAULT_MOVIE_COUNT = 7;
+const MAX_MOVIE_COUNT = 30;
 
 const MIN_COMMENT_COUNT = 0;
 const MAX_COMMENT_COUNT = 30;
@@ -52,6 +51,12 @@ const MockData = {
     `Adventure`,
     `Animation`
   ],
+  AGE: [
+    `0+`,
+    `12+`,
+    `14+`,
+    `18+`
+  ],
   TEXTS: [
     `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget.`,
     `Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra.`,
@@ -85,10 +90,15 @@ const FilterMockData = [
     title: `Favorites`,
     slug: `favorites`,
     count: 8,
+  },
+  {
+    title: `Stats`,
+    slug: `stats`,
+    count: 8,
   }
 ];
 
-const getCard = () => ({
+const getFilm = () => ({
   title: MockData.TITLES[getRandomInt(0, MockData.TITLES.length)],
   rating: getRandomFloat(Ratings.MIN, Ratings.MAX),
   year: getRandomInt(Years.MIN, Years.MAX),
@@ -101,7 +111,10 @@ const getCard = () => ({
   comments: new Array(getRandomInt(MIN_COMMENT_COUNT, MAX_COMMENT_COUNT))
     .fill()
     .map(() => getRandomElement(MockData.TEXTS)),
-  isAdditional: MockData.ADDITIONAL[getRandomInt(0, MockData.ADDITIONAL.length)]
+  isAdditional: MockData.ADDITIONAL[getRandomInt(0, MockData.ADDITIONAL.length)],
+  isFavorites: MockData.ADDITIONAL[getRandomInt(0, MockData.ADDITIONAL.length)],
+  isWatchList: MockData.ADDITIONAL[getRandomInt(0, MockData.ADDITIONAL.length)],
+  age: MockData.AGE[getRandomInt(0, MockData.AGE.length)]
 });
 
 /**
@@ -109,11 +122,13 @@ const getCard = () => ({
  * @param {number} countCollection количество карточек задач.
  * @return {object} коллекция объектов.
  */
-const getMockCollection = (countCollection) => {
-  let collection = new Array(countCollection)
+const getMockCollection = () => {
+  let collection = new Array(MAX_MOVIE_COUNT)
     .fill()
-    .map(() => getCard());
+    .map(() => getFilm());
   return collection;
 };
 
-export {MAX_MOVIE_COUNT, DEFAULT_MOVIE_COUNT, MAX_COMMENT_COUNT, MockData, FilterMockData, getMockCollection};
+const mockdata = getMockCollection();
+
+export {mockdata, FilterMockData};
