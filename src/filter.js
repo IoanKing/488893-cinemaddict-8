@@ -1,5 +1,3 @@
-import {createElement} from "./utils";
-
 export default class Filter {
   constructor(collection) {
     this._title = collection.title;

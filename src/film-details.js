@@ -20,16 +20,23 @@ export default class FilmDetails {
 
     this._onCloseButtonClick = this._onCloseButtonClick.bind(this);
     this._element = null;
+
+    this._container = null;
   }
 
   _onCloseButtonClick(evt) {
+    evt.preventDefault();
     if (typeof this._onClose === `function`) {
-      this._onClose(evt);
+      this._onClose(this);
     }
   }
 
   set onClose(fn) {
     this._onClose = fn;
+  }
+
+  set container(obj) {
+    this._container = obj;
   }
 
   get element() {
@@ -208,11 +215,12 @@ export default class FilmDetails {
   render() {
     this._element = createElement(this.template);
     this.addListener();
-    return this._element;
+    this._container.insertAdjacentElement(`beforeend`, this._element);
   }
 
   unrender() {
     this.removeListener();
+    this._container.removeChild(this._element);
     this._element = null;
   }
 

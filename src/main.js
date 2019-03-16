@@ -24,9 +24,9 @@ const filterTopComment = (collection) => {
 
 const onOpenPopup = (collection) => {
   const popup = new FilmDetail(collection);
-  const popupRendered = popup.render();
-  body.insertAdjacentElement(`beforeend`, popupRendered);
-  popup.onClose = onClosePopup(popup);
+  popup.container = body;
+  popup.render();
+  popup.onClose = onClosePopup.bind(popup);
 };
 
 const onClosePopup = (collection) => {
