@@ -22,15 +22,18 @@ const filterTopComment = (collection) => {
   return Object.values(collection).sort((a, b) => b._comments.length - a._comments.length).slice(0, DEFAULT_EXTRA_COUNT);
 };
 
+let correntPopup = null;
+
 const onOpenPopup = (collection) => {
-  const popup = new FilmDetail(collection);
-  popup.container = body;
-  popup.render();
-  popup.onClose = onClosePopup.bind(popup);
+  correntPopup = new FilmDetail(collection);
+  correntPopup.container = body;
+  correntPopup.render();
+  correntPopup.onClose = onClosePopup.bind(correntPopup);
 };
 
 const onClosePopup = (collection) => {
   collection.unrender();
+  correntPopup = null;
 };
 
 /**
