@@ -1,6 +1,9 @@
 const MIN_COUNT = 0;
 const MAX_COUNT = 30;
 
+const DEFAULT_EXTRA_COUNT = 2;
+const MAX_MOVIE_COUNT = 10;
+
 /**
  * Генерация случайного числа на заданном интервале.
  * @param {number} min минимальное значение интервала.
@@ -24,4 +27,16 @@ const getRandomFloat = (min = MIN_COUNT, max = MAX_COUNT) => getRandomInt(min, m
  */
 const getRandomElement = (collection) => collection[getRandomInt(0, collection.length)];
 
-export {getRandomInt, getRandomElement, getRandomFloat};
+/**
+ * Создание DOM элемента на основании шаблона.
+ * @param {object} elementTemplate шаблон DOM элемента.
+ * @param {bool} isMultiplyElement признак нескольких элементов в шаблоне.
+ * @return {object} DOM элемент.
+ */
+const createElement = (elementTemplate, isMultiplyElement = false) => {
+  const newElement = document.createElement(`div`);
+  newElement.innerHTML = elementTemplate;
+  return (isMultiplyElement) ? newElement : newElement.firstChild;
+};
+
+export {getRandomInt, getRandomElement, getRandomFloat, createElement, DEFAULT_EXTRA_COUNT, MAX_MOVIE_COUNT};
