@@ -53,12 +53,15 @@ const init = () => {
   filmList.defaultContainer = filmContainer;
 
   filmList.Filter = filterDefault;
+  filmList.isShowDetail = true;
   filmList.render();
 
   filmList.Filter = filterTopRated;
+  filmList.isShowDetail = false;
   filmList.render(topFilmContainer, false);
 
   filmList.Filter = filterTopComment;
+  filmList.isShowDetail = false;
   filmList.render(commentedFilmContainer, false);
 };
 

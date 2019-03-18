@@ -45,7 +45,8 @@ export default class FilmList {
 
     const fragment = document.createDocumentFragment();
     partOfElements.forEach((it) => {
-      fragment.appendChild(it.render(isControls));
+      it.isShowDetail = isControls;
+      fragment.appendChild(it.render());
     });
     container.appendChild(fragment);
 

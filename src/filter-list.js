@@ -107,7 +107,7 @@ export default class FilterList {
   render(container) {
     this._element = container;
     this._dataCollection.forEach((it) => {
-      this._element.insertAdjacentHTML(`afterbegin`, it.render());
+      this._element.insertAdjacentElement(`afterbegin`, it.render());
     });
     this.addListener();
   }
