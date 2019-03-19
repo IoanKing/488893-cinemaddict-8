@@ -1,5 +1,8 @@
-export default class Filter {
+import Component from "./component";
+
+export default class Filter extends Component {
   constructor(collection) {
+    super();
     this._title = collection.title;
     this._slug = collection.slug;
     this._count = collection.count;
@@ -13,21 +16,10 @@ export default class Filter {
 
   get template() {
     const span = `${(this._isAdditional) ? `` : `<span class="main-navigation__item-count">${this._count}</span>`}`;
-    return `
-    <a
+    return `<a
       href="#${this._slug}"
       class="main-navigation__item ${(this._slug === `all`) ? `main-navigation__item--active` : ``} ${(this._isAdditional) ? `main-navigation__item--additional` : ``}"
-      >${this._title} ${(this._slug !== `all`) ? span : ``}</a>
-    `.trim();
+      >${this._title} ${(this._slug !== `all`) ? span : ``}</a>`
+      .trim();
   }
-
-  render() {
-    this._element = this.template;
-    return this._element;
-  }
-
-  unrender() {
-    this._element = null;
-  }
-
 }
