@@ -83,7 +83,7 @@ export default class FilmDetails extends Component {
         target.isWatchList = (value === `on`);
       },
       comment: (value) => {
-        target.commentText = `` + value;
+        target.commentText = `${value}`;
       },
       commentEmoji: (value) => {
         target.commentEmoji = value;

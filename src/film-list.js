@@ -24,12 +24,16 @@ export default class FilmList {
         film.isWatched = (newObject.isWatched) ? true : false;
         film.isFavorites = (newObject.isFavorites) ? true : false;
         film.isWatchList = (newObject.isWatchList) ? true : false;
-        film.comments.push({
-          emoji: newObject.commentEmoji,
-          author: `Unknown`,
-          published: Date.now(),
-          text: newObject.commentText,
-        });
+        console.log(newObject.commentText.trim());
+        console.log(newObject.commentText);
+        if (newObject.commentText.trim() !== ``) {
+          film.comments.push({
+            emoji: newObject.commentEmoji,
+            author: `Unknown`,
+            published: Date.now(),
+            text: newObject.commentText,
+          });
+        }
 
         newFilm.update(film);
         newFilm.render();
