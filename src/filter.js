@@ -6,19 +6,16 @@ export default class Filter extends Component {
     this._title = collection.title;
     this._slug = collection.slug;
     this._count = collection.count;
-    this._isAdditional = collection.isAdditional;
+    this._isWatched = collection.isWatched;
 
     this._element = null;
-    this._status = {
-      isActive: false
-    };
   }
 
   get template() {
-    const span = `${(this._isAdditional) ? `` : `<span class="main-navigation__item-count">${this._count}</span>`}`;
+    const span = `${(this._isWatched) ? `` : `<span class="main-navigation__item-count">${this._count}</span>`}`;
     return `<a
-      href="#${this._slug}"
-      class="main-navigation__item ${(this._slug === `all`) ? `main-navigation__item--active` : ``} ${(this._isAdditional) ? `main-navigation__item--additional` : ``}"
+      ${(this._count !== 0) ? `href="#${this._slug}"` : ``}
+      class="main-navigation__item ${(this._isWatched) ? `main-navigation__item--additional` : ``}"
       >${this._title} ${(this._slug !== `all`) ? span : ``}</a>`
       .trim();
   }

@@ -1,30 +1,37 @@
 import Film from "./film";
+import FilmDetail from "./film-details";
 import {mockdata} from "./mock";
 
 export default class FilmList {
   constructor() {
     this._collection = this._getCollection(mockdata);
-    this._element = null;
-    this._onFilterData = Object.values(this._collection);
+    this._onFilterData = this._getCollection(mockdata);
+    this._popupContainer = null;
   }
 
-  _makeFilm(element) {
-    const newFilm = new Film(element);
+  _makeFilm(film) {
+    const newFilm = new Film(film);
+    newFilm.onClick = () => {
+      const filmDetail = new FilmDetail(newFilm);
+      filmDetail.container = this._popupContainer;
+      filmDetail.onClose = () => {
+        filmDetail.unrender();
+      };
+      filmDetail.render();
+    };
     return newFilm;
   }
 
   _getCollection(collection) {
-    const Films = [];
+    const films = [];
     collection.forEach((element) => {
-      Films.push(this._makeFilm(element));
+      films.push(this._makeFilm(element));
     });
-    return Films;
+    return films;
   }
 
-  set onClick(fn) {
-    this._collection.forEach((element) => {
-      element.onClick = fn;
-    });
+  set popupContainer(container) {
+    this._popupContainer = container;
   }
 
   set Filter(fn) {

@@ -12,7 +12,7 @@ export default class FilterList {
 
   _onDataFiltering(evt) {
     evt.preventDefault();
-    if (evt.target.classList.contains(Selector.NAVIGATION_ITEM)) {
+    if (evt.target.classList.contains(Selector.NAVIGATION_ITEM) && evt.target.hasAttribute(`href`)) {
       const filter = evt.target.getAttribute(`href`).split(`#`).pop();
       const MAX_MOVIE_COUNT = 10;
 
@@ -21,7 +21,7 @@ export default class FilterList {
       };
 
       const filterFavorites = (collection) => {
-        return Object.values(collection).filter((it) => it._isFavorite);
+        return Object.values(collection).filter((it) => it._isFavorites);
       };
 
       const filterWathlists = (collection) => {
@@ -29,25 +29,29 @@ export default class FilterList {
       };
 
       const filterHistoric = (collection) => {
-        return Object.values(collection).filter((it) => it._year <= 1970);
+        return Object.values(collection).filter((it) => it._isWatched);
       };
 
       switch (filter) {
         case `favorites`:
           this._onFilmList.Filter = filterFavorites;
           this._onFilmList.render();
+          this.setActiveFilter(`favorites`);
           break;
         case `watchlist`:
           this._onFilmList.Filter = filterWathlists;
           this._onFilmList.render();
+          this.setActiveFilter(`watchlist`);
           break;
         case `history`:
           this._onFilmList.Filter = filterHistoric;
           this._onFilmList.render();
+          this.setActiveFilter(`history`);
           break;
         default:
           this._onFilmList.Filter = filterDefault;
           this._onFilmList.render();
+          this.setActiveFilter(`all`);
           break;
       }
     }
@@ -57,39 +61,40 @@ export default class FilterList {
     this._onFilter = fn;
   }
 
-  _getCollection() {
-    const Films = [];
-    this._collection.forEach((element) => {
-      Films.push(new Filter(element));
+  _getFiltersList() {
+    const filters = [];
+    const collection = this._makeCollection();
+    collection.forEach((element) => {
+      filters.push(new Filter(element));
     });
-    return Films;
+    return filters;
   }
 
-  get _collection() {
+  _makeCollection() {
     const collection = this._onFilmList.collection;
     return [
       {
         title: `Favorites`,
         slug: `favorites`,
-        isAdditional: false,
-        count: Object.values(collection).reduce((sum, current) => +sum + +current._isFavorite, 0),
+        isWatched: false,
+        count: Object.values(collection).reduce((sum, current) => +sum + +current._isFavorites, 0),
       },
       {
         title: `History`,
         slug: `history`,
-        isAdditional: false,
-        count: Object.values(collection).reduce((sum, current) => +sum + ((current._year <= 1970) ? 1 : 0), 0),
+        isWatched: false,
+        count: Object.values(collection).reduce((sum, current) => +sum + +current._isWatched, 0),
       },
       {
         title: `Watchlist`,
         slug: `watchlist`,
-        isAdditional: false,
+        isWatched: false,
         count: Object.values(collection).reduce((sum, current) => +sum + +current._isWatchList, 0),
       },
       {
         title: `All movies`,
         slug: `all`,
-        isAdditional: false,
+        isWatched: false,
         count: collection.length,
       },
     ];
@@ -97,7 +102,7 @@ export default class FilterList {
 
   set onFilmList(obj) {
     this._onFilmList = obj;
-    this._dataCollection = this._getCollection();
+    this._dataCollection = this._getFiltersList();
   }
 
   get element() {
@@ -109,13 +114,26 @@ export default class FilterList {
     this._dataCollection.forEach((it) => {
       this._element.insertAdjacentElement(`afterbegin`, it.render());
     });
+    this.setActiveFilter(`all`);
     this.addListener();
   }
 
   unrender() {
+    this._container = null;
     this._element = null;
     this._dataCollection = null;
     this.removeListener();
+  }
+
+  setActiveFilter(filterName) {
+    const filters = this._element.querySelectorAll(`.${Selector.NAVIGATION_ITEM}`);
+    filters.forEach((filter) => {
+      if (filter.getAttribute(`href`) === `#${filterName}`) {
+        filter.classList.add(Selector.NAVIGATION_ITEM_ACTIVE);
+      } else {
+        filter.classList.remove(Selector.NAVIGATION_ITEM_ACTIVE);
+      }
+    });
   }
 
   addListener() {
