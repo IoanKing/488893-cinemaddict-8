@@ -1,9 +1,10 @@
-import {createElement} from "./utils";
 import Selector from "./selectors";
+import Component from "./component";
 import moment from "moment";
 
-export default class FilmDetails {
+export default class FilmDetails extends Component {
   constructor(collection) {
+    super();
     this._title = collection._title;
     this._original = collection._original;
     this._director = collection._director;
@@ -33,6 +34,18 @@ export default class FilmDetails {
     evt.preventDefault();
     if (typeof this._onClose === `function`) {
       this._onClose(this);
+    }
+  }
+
+  _onVitingClick(newObject) {
+    if (typeof this._onVoting === `function`) {
+      this._onVoting(newObject);
+    }
+  }
+
+  _onCommentInput() {
+    if (typeof this._onComment === `function`) {
+      this._onComment(this);
     }
   }
 
@@ -219,18 +232,6 @@ export default class FilmDetails {
     `.trim();
   }
 
-  render() {
-    this._element = createElement(this.template);
-    this.addListener();
-    this._container.insertAdjacentElement(`beforeend`, this._element);
-  }
-
-  unrender() {
-    this.removeListener();
-    this._container.removeChild(this._element);
-    this._element = null;
-  }
-
   addListener() {
     this._element.querySelector(`.${Selector.BTH_CLOSE}`)
       .addEventListener(`click`, this._onCloseButtonClick);
@@ -240,6 +241,4 @@ export default class FilmDetails {
     this._element.querySelector(`.${Selector.BTH_CLOSE}`)
       .removeEventListener(`click`, this._onCloseButtonClick);
   }
-
-  update() {}
 }

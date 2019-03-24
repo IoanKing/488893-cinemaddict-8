@@ -17,7 +17,7 @@ export default class FilmList {
       filmDetail.onClose = () => {
         filmDetail.unrender();
       };
-      filmDetail.render();
+      this._popupContainer.insertAdjacentElement(`beforeend`, filmDetail.render());
     };
     return newFilm;
   }
