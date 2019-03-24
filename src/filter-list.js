@@ -21,15 +21,15 @@ export default class FilterList {
       };
 
       const filterFavorites = (collection) => {
-        return Object.values(collection).filter((it) => it._isFavorites);
+        return Object.values(collection).filter((it) => it._isFavorites).slice(0, Math.min(MAX_MOVIE_COUNT, collection.length));
       };
 
       const filterWathlists = (collection) => {
-        return Object.values(collection).filter((it) => it._isWatchList);
+        return Object.values(collection).filter((it) => it._isWatchList).slice(0, Math.min(MAX_MOVIE_COUNT, collection.length));
       };
 
       const filterHistoric = (collection) => {
-        return Object.values(collection).filter((it) => it._isWatched);
+        return Object.values(collection).filter((it) => it._isWatched).slice(0, Math.min(MAX_MOVIE_COUNT, collection.length));
       };
 
       switch (filter) {

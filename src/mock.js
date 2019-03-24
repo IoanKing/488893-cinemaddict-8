@@ -1,6 +1,6 @@
 import {getRandomInt, getRandomElement, getRandomFloat} from "./utils";
 
-const MAX_MOVIE_COUNT = 30;
+const MAX_MOVIE_COUNT = 50;
 
 const MIN_COMMENT_COUNT = 0;
 const MAX_COMMENT_COUNT = 10;

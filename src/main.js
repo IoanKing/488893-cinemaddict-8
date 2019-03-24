@@ -31,13 +31,9 @@ const filterTopComment = (collection) => {
 const init = () => {
   const filmList = new FilmList(filmContainer);
   filmList.popupContainer = body;
-  const filterList = new FilterList();
+  const filterList = new FilterList(navigation);
   filterList.onFilmList = filmList;
   filterList.render(navigation);
-
-  filmList.Filter = filterDefault;
-  filmList.isShowDetail = true;
-  filmList.render(filmContainer);
 
   filmList.Filter = filterTopRated;
   filmList.isShowDetail = false;
@@ -46,6 +42,10 @@ const init = () => {
   filmList.Filter = filterTopComment;
   filmList.isShowDetail = false;
   filmList.render(commentedFilmContainer, false);
+
+  filmList.Filter = filterDefault;
+  filmList.isShowDetail = true;
+  filmList.render(filmContainer);
 };
 
 init();

@@ -27,7 +27,7 @@ export default class FilmDetails extends Component {
     this._isWatchList = collection.isWatchList;
 
     this._onCloseButtonClick = this._onCloseButtonClick.bind(this);
-    this._onUpdateFilmData = this._onUpdateFilmData.bind(this);
+    // this._onUpdateFilmData = this._onUpdateFilmData.bind(this);
   }
 
   _onCloseButtonClick(evt) {
@@ -40,15 +40,15 @@ export default class FilmDetails extends Component {
     this.update(newData);
   }
 
-  _onUpdateFilmData() {
-    // this.removeListener();
-    // this._partialUpdate();
-    // this.addListener();
-  }
+  // _onUpdateFilmData() {
+  //   this.removeListener();
+  //   this._partialUpdate();
+  //   this.addListener();
+  // }
 
-  _partialUpdate() {
-    this._element = createElement(this.template);
-  }
+  // _partialUpdate() {
+  //   this._element = createElement(this.template);
+  // }
 
   _processForm(formData) {
     const entry = {
@@ -70,7 +70,7 @@ export default class FilmDetails extends Component {
   static createMapper(target) {
     return {
       score: (value) => {
-        target.userRating = value;
+        target.userRating = +value;
       },
     };
   }
@@ -257,15 +257,15 @@ export default class FilmDetails extends Component {
   addListener() {
     this._element.querySelector(`.${Selector.BTH_CLOSE}`)
       .addEventListener(`click`, this._onCloseButtonClick);
-    this._element.querySelector(`.${Selector.FORM}`)
-      .addEventListener(`change`, this._onUpdateFilmData);
+    // this._element.querySelector(`.${Selector.FORM}`)
+    //   .addEventListener(`change`, this._onUpdateFilmData);
   }
 
   removeListener() {
     this._element.querySelector(`.${Selector.BTH_CLOSE}`)
       .removeEventListener(`click`, this._onCloseButtonClick);
-    this._element.querySelector(`.${Selector.FORM}`)
-      .removeEventListener(`change`, this._onUpdateFilmData);
+    // this._element.querySelector(`.${Selector.FORM}`)
+    //   .removeEventListener(`change`, this._onUpdateFilmData);
   }
 
   update(collection) {

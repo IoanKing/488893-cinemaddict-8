@@ -6,14 +6,12 @@ export default class FilmList {
   constructor(container) {
     this._container = container;
     this._collection = this._getCollection(mockdata);
-    this._onFilterData = Object.values(this._collection);
     this._popupContainer = null;
   }
 
   _makeFilm(film) {
     const newFilm = new Film(film);
     newFilm.render();
-    const copyNode = Object.assign({}, newFilm);
 
     newFilm.onClick = () => {
       const filmDetail = new FilmDetail(film);
@@ -24,12 +22,8 @@ export default class FilmList {
         film.userRating = newObject.userRating;
         newFilm.update(film);
         newFilm.render();
-        console.log(copyNode);
-        console.log(copyNode._element);
-        console.log(newFilm._element);
-        console.log(newFilm._element === copyNode._element);
-        // this._container.replaceChild(newFilm._element, copyNode._element);
         filmDetail.unrender();
+        this.render();
       };
     };
     return newFilm;
@@ -61,7 +55,7 @@ export default class FilmList {
 
   render(container = this._container, isControls = true) {
     container.innerHTML = ``;
-    const partOfElements = this._onFilter(this._onFilterData);
+    const partOfElements = this._onFilter(this._collection);
 
     const fragment = document.createDocumentFragment();
     partOfElements.forEach((it) => {
@@ -70,16 +64,6 @@ export default class FilmList {
     });
     container.appendChild(fragment);
 
-  }
-
-  unrender() {
-    this._onFilterData = Object.values(this._collection);
-  }
-
-  update(collection) {
-    // this.unrender();
-    // this._onFilterData = collection;
-    // this.render();
   }
 
   addListener() {
