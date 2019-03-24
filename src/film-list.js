@@ -3,21 +3,34 @@ import FilmDetail from "./film-details";
 import {mockdata} from "./mock";
 
 export default class FilmList {
-  constructor() {
+  constructor(container) {
+    this._container = container;
     this._collection = this._getCollection(mockdata);
-    this._onFilterData = this._getCollection(mockdata);
+    this._onFilterData = Object.values(this._collection);
     this._popupContainer = null;
   }
 
   _makeFilm(film) {
     const newFilm = new Film(film);
+    newFilm.render();
+    const copyNode = Object.assign({}, newFilm);
+
     newFilm.onClick = () => {
-      const filmDetail = new FilmDetail(newFilm);
-      filmDetail.container = this._popupContainer;
-      filmDetail.onClose = () => {
+      const filmDetail = new FilmDetail(film);
+      filmDetail.render();
+      this._popupContainer.insertAdjacentElement(`beforeend`, filmDetail.element);
+
+      filmDetail.onClose = (newObject) => {
+        film.userRating = newObject.userRating;
+        newFilm.update(film);
+        newFilm.render();
+        console.log(copyNode);
+        console.log(copyNode._element);
+        console.log(newFilm._element);
+        console.log(newFilm._element === copyNode._element);
+        // this._container.replaceChild(newFilm._element, copyNode._element);
         filmDetail.unrender();
       };
-      this._popupContainer.insertAdjacentElement(`beforeend`, filmDetail.render());
     };
     return newFilm;
   }
@@ -39,14 +52,14 @@ export default class FilmList {
   }
 
   set defaultContainer(obj) {
-    this._element = obj;
+    this._container = obj;
   }
 
   get collection() {
     return this._collection;
   }
 
-  render(container = this._element, isControls = true) {
+  render(container = this._container, isControls = true) {
     container.innerHTML = ``;
     const partOfElements = this._onFilter(this._onFilterData);
 
@@ -64,9 +77,9 @@ export default class FilmList {
   }
 
   update(collection) {
-    this.unrender();
-    this._onFilterData = collection;
-    this.render();
+    // this.unrender();
+    // this._onFilterData = collection;
+    // this.render();
   }
 
   addListener() {

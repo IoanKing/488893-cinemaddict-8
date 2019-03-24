@@ -1,60 +1,82 @@
 import Selector from "./selectors";
 import Component from "./component";
+import {createElement} from "./utils";
 import moment from "moment";
 
 export default class FilmDetails extends Component {
   constructor(collection) {
     super();
-    this._title = collection._title;
-    this._original = collection._original;
-    this._director = collection._director;
-    this._writers = collection._writers;
-    this._authors = collection._authors;
-    this._totalRating = collection._totalRating;
-    this._userRating = collection._userRating;
-    this._realise = collection._realise;
-    this._duration = collection._duration;
-    this._genres = collection._genres;
-    this._poster = collection._poster;
-    this._description = collection._description;
-    this._comments = collection._comments;
-    this._age = collection._age;
-    this._country = collection._country;
+    this._title = collection.title;
+    this._original = collection.original;
+    this._director = collection.director;
+    this._writers = collection.writers;
+    this._authors = collection.authors;
+    this._totalRating = collection.totalRating;
+    this._userRating = collection.userRating;
+    this._realise = collection.realise;
+    this._duration = collection.duration;
+    this._genres = collection.genres;
+    this._poster = collection.poster;
+    this._description = collection.description;
+    this._comments = collection.comments;
+    this._age = collection.age;
+    this._country = collection.country;
 
-    this._isWatched = collection._isWatched;
-    this._isFavorites = collection._isFavorites;
-    this._isWatchList = collection._isWatchList;
+    this._isWatched = collection.isWatched;
+    this._isFavorites = collection.isFavorites;
+    this._isWatchList = collection.isWatchList;
 
     this._onCloseButtonClick = this._onCloseButtonClick.bind(this);
-
-    this._container = null;
+    this._onUpdateFilmData = this._onUpdateFilmData.bind(this);
   }
 
   _onCloseButtonClick(evt) {
     evt.preventDefault();
+    const formData = new FormData(this._element.querySelector(`.${Selector.FORM}`));
+    const newData = this._processForm(formData);
     if (typeof this._onClose === `function`) {
-      this._onClose(this);
+      this._onClose(newData);
     }
+    this.update(newData);
   }
 
-  _onVitingClick(newObject) {
-    if (typeof this._onVoting === `function`) {
-      this._onVoting(newObject);
-    }
+  _onUpdateFilmData() {
+    // this.removeListener();
+    // this._partialUpdate();
+    // this.addListener();
   }
 
-  _onCommentInput() {
-    if (typeof this._onComment === `function`) {
-      this._onComment(this);
+  _partialUpdate() {
+    this._element = createElement(this.template);
+  }
+
+  _processForm(formData) {
+    const entry = {
+      userRating: ``,
+    };
+
+    const filmDetailMapper = FilmDetails.createMapper(entry);
+
+    for (const pair of formData.entries()) {
+      const [property, value] = pair;
+      if (filmDetailMapper[property]) {
+        filmDetailMapper[property](value);
+      }
     }
+
+    return entry;
+  }
+
+  static createMapper(target) {
+    return {
+      score: (value) => {
+        target.userRating = value;
+      },
+    };
   }
 
   set onClose(fn) {
     this._onClose = fn;
-  }
-
-  set container(obj) {
-    this._container = obj;
   }
 
   get element() {
@@ -235,10 +257,18 @@ export default class FilmDetails extends Component {
   addListener() {
     this._element.querySelector(`.${Selector.BTH_CLOSE}`)
       .addEventListener(`click`, this._onCloseButtonClick);
+    this._element.querySelector(`.${Selector.FORM}`)
+      .addEventListener(`change`, this._onUpdateFilmData);
   }
 
   removeListener() {
     this._element.querySelector(`.${Selector.BTH_CLOSE}`)
       .removeEventListener(`click`, this._onCloseButtonClick);
+    this._element.querySelector(`.${Selector.FORM}`)
+      .removeEventListener(`change`, this._onUpdateFilmData);
+  }
+
+  update(collection) {
+    this._userRating = collection.userRating;
   }
 }

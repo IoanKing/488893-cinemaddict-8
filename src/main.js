@@ -29,17 +29,15 @@ const filterTopComment = (collection) => {
  *  Запускает обработкик обработки клика на фильтр.
  */
 const init = () => {
-  const filmList = new FilmList();
+  const filmList = new FilmList(filmContainer);
   filmList.popupContainer = body;
   const filterList = new FilterList();
   filterList.onFilmList = filmList;
   filterList.render(navigation);
 
-  filmList.defaultContainer = filmContainer;
-
   filmList.Filter = filterDefault;
   filmList.isShowDetail = true;
-  filmList.render();
+  filmList.render(filmContainer);
 
   filmList.Filter = filterTopRated;
   filmList.isShowDetail = false;
