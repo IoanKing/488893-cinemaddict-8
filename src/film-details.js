@@ -1,6 +1,6 @@
 import Selector from "./selectors";
 import Component from "./component";
-import {createElement} from "./utils";
+import {Emoji} from "./utils";
 import moment from "moment";
 
 export default class FilmDetails extends Component {
@@ -34,6 +34,7 @@ export default class FilmDetails extends Component {
     evt.preventDefault();
     const formData = new FormData(this._element.querySelector(`.${Selector.FORM}`));
     const newData = this._processForm(formData);
+    console.log(newData);
     if (typeof this._onClose === `function`) {
       this._onClose(newData);
     }
@@ -71,6 +72,21 @@ export default class FilmDetails extends Component {
     return {
       score: (value) => {
         target.userRating = +value;
+      },
+      watched: (value) => {
+        target.isWatched = (value === `on`);
+      },
+      favorite: (value) => {
+        target.isFavorites = (value === `on`);
+      },
+      watchlist: (value) => {
+        target.isWatchList = (value === `on`);
+      },
+      comment: (value) => {
+        target.commentText = `` + value;
+      },
+      commentEmoji: (value) => {
+        target.commentEmoji = value;
       },
     };
   }
@@ -167,7 +183,7 @@ export default class FilmDetails extends Component {
           <ul class="film-details__comments-list">
             ${(Array.from(this._comments).map((comment) => (`
             <li class="film-details__comment">
-            <span class="film-details__comment-emoji">${comment.emoji}</span>
+            <span class="film-details__comment-emoji">${Emoji[comment.emoji]}</span>
             <div>
               <p class="film-details__comment-text">${comment.text}</p>
               <p class="film-details__comment-info">
@@ -185,13 +201,13 @@ export default class FilmDetails extends Component {
               <input type="checkbox" class="film-details__add-emoji visually-hidden" id="add-emoji">
 
               <div class="film-details__emoji-list">
-                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-sleeping" value="sleeping">
+                <input class="film-details__emoji-item visually-hidden" name="commentEmoji" type="radio" id="emoji-sleeping" value="sleeping">
                 <label class="film-details__emoji-label" for="emoji-sleeping">😴</label>
 
-                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-neutral-face" value="neutral-face" checked>
+                <input class="film-details__emoji-item visually-hidden" name="commentEmoji" type="radio" id="emoji-neutral-face" value="neutral-face" checked>
                 <label class="film-details__emoji-label" for="emoji-neutral-face">😐</label>
 
-                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-grinning" value="grinning">
+                <input class="film-details__emoji-item visually-hidden" name="commentEmoji" type="radio" id="emoji-grinning" value="grinning">
                 <label class="film-details__emoji-label" for="emoji-grinning">😀</label>
               </div>
             </div>
@@ -270,5 +286,9 @@ export default class FilmDetails extends Component {
 
   update(collection) {
     this._userRating = collection.userRating;
+    this._isWatched = (collection.isWatched) ? true : false;
+    this._isFavorites = (collection.isFavorites) ? true : false;
+    this._isWatchList = (collection.isWatchList) ? true : false;
+    this._comments = collection.comments;
   }
 }

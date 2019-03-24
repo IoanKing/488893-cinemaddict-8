@@ -19,9 +19,21 @@ export default class FilmList {
       this._popupContainer.insertAdjacentElement(`beforeend`, filmDetail.element);
 
       filmDetail.onClose = (newObject) => {
+        console.log(film);
         film.userRating = newObject.userRating;
+        film.isWatched = (newObject.isWatched) ? true : false;
+        film.isFavorites = (newObject.isFavorites) ? true : false;
+        film.isWatchList = (newObject.isWatchList) ? true : false;
+        film.comments.push({
+          emoji: newObject.commentEmoji,
+          author: `Unknown`,
+          published: Date.now(),
+          text: newObject.commentText,
+        });
+
         newFilm.update(film);
         newFilm.render();
+        console.log(newFilm);
         filmDetail.unrender();
         this.render();
       };

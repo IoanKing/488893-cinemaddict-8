@@ -37,9 +37,9 @@ const Duration = {
 
 const MockComment = {
   EMOJI: [
-    `😴`,
-    `😐`,
-    `😀`,
+    `sleeping`,
+    `neutral-fac`,
+    `grinning`,
   ],
   TEXT: [
     `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget.`,

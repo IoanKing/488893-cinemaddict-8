@@ -4,6 +4,12 @@ const MAX_COUNT = 30;
 const DEFAULT_EXTRA_COUNT = 2;
 const MAX_MOVIE_COUNT = 10;
 
+const Emoji = {
+  "sleeping": `😴`,
+  "neutral-fac": `😐`,
+  "grinning": `😀`,
+};
+
 /**
  * Генерация случайного числа на заданном интервале.
  * @param {number} min минимальное значение интервала.
@@ -39,4 +45,4 @@ const createElement = (elementTemplate, isMultiplyElement = false) => {
   return (isMultiplyElement) ? newElement : newElement.firstChild;
 };
 
-export {getRandomInt, getRandomElement, getRandomFloat, createElement, DEFAULT_EXTRA_COUNT, MAX_MOVIE_COUNT};
+export {getRandomInt, getRandomElement, getRandomFloat, createElement, DEFAULT_EXTRA_COUNT, MAX_MOVIE_COUNT, Emoji};
