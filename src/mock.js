@@ -3,14 +3,31 @@ import {getRandomInt, getRandomElement, getRandomFloat} from "./utils";
 const MAX_MOVIE_COUNT = 30;
 
 const MIN_COMMENT_COUNT = 0;
-const MAX_COMMENT_COUNT = 30;
+const MAX_COMMENT_COUNT = 10;
 
 const MIN_SENTENTES = 1;
 const MAX_SENTENTES = 3;
 
+const MAX_ACTORS = 7;
+
+const TimeConstants = {
+  YEAR_COUNTS: 50,
+  MONTH_COUNT: 2,
+  DAYS_COUNT: 7,
+  HOUR_COUNTS: 24,
+  MINUTES_COUNT: 60,
+  SECONDS_COUNT: 60,
+  MSECONDS_COUNT: 1000,
+};
+
 const Ratings = {
   MIN: 80,
   MAX: 100
+};
+
+const UserRatings = {
+  MIN: 1,
+  MAX: 9
 };
 
 const Duration = {
@@ -18,11 +35,48 @@ const Duration = {
   MAX: 145
 };
 
-const Years = {
-  MIN: 1965,
-  MAX: 2018
+const MockComment = {
+  EMOJI: [
+    `😴`,
+    `😐`,
+    `😀`,
+  ],
+  TEXT: [
+    `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget.`,
+    `Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra.`,
+    `Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante.`,
+    `Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum.`,
+    `Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui.`,
+    `Sed sed nisi sed augue convallis suscipit in sed felis.`,
+    `Aliquam erat volutpat.`,
+    `Nunc fermentum tortor ac porta dapibus.`,
+    `In rutrum ac purus sit amet tempus.`,
+  ],
+  AUTHOR_NAME: [
+    `Tom`,
+    `Jerry`,
+    `Nikolas`,
+    `Smith`,
+    `Mike`,
+    `Duglas`,
+    `John`,
+    `Adam`,
+    `Poll`,
+    `Nikole`,
+  ],
+  AUTHON_SURNAME: [
+    `Smith`,
+    `Malkovish`,
+    `Duglas`,
+    `Kidman`,
+    `Iovich`,
+    `Roogue`,
+    `Paladin`,
+    `Fury`,
+    `Flash`,
+    `Corrvil`,
+  ],
 };
-
 
 const MockData = {
   TITLES: [
@@ -67,6 +121,61 @@ const MockData = {
     `Aliquam erat volutpat.`,
     `Nunc fermentum tortor ac porta dapibus.`,
     `In rutrum ac purus sit amet tempus.`,
+  ],
+  AUTHORS: [
+    `Stephen Graham`,
+    `Jamie Bell`,
+    `Sam Worthington`,
+    `Tim Robbins`,
+    `Zach Galifianakis`,
+    `Ed Helms`,
+    `Bradley Cooper`,
+    `Pierce Brosnan`,
+    `Samuel L. Jackson`,
+    `Uma Thurman`,
+    `Hilary Swank`,
+    `Amanda Bynes`,
+    `Mila Kunis`,
+    `Emma Stone`,
+    `Kate Bosworth`,
+    `Penélope Cruz`,
+    `Sandra Bullock`,
+    `Zooey Deschane`,
+  ],
+  DIRECTORS: [
+    `Martin Scorsese`,
+    `Peter Jackson`,
+    `Steven Spielberg`,
+    `Tim Burton`,
+    `David Fincher`,
+    `David Lynch`,
+    `Christopher Nolan`,
+    `Milos Forman`,
+    `Ridley Scott`,
+    `James Cameron`,
+    `Marek Piestrak`,
+    `Freddie Francis`,
+    `Danny Boyle`,
+    `Francis Ford Coppola`,
+    `David Cronenberg`,
+    `George Miller`,
+    `Stanley Kubrick`,
+  ],
+  WRITERS: [
+    `Christopher Nolan`,
+    `Luc Besson`,
+    `John Hughes`,
+    `Martin Scorsese`,
+    `Stephen King`,
+    `Guy Ritchie`,
+    `Danny Boyle`,
+    `Quentin Tarantino`,
+  ],
+  COUNTRY: [
+    `USA`,
+    `France`,
+    `Germany`,
+    `Japan`,
   ]
 };
 
@@ -100,18 +209,37 @@ const FilterMockData = [
 
 const getFilm = () => ({
   title: MockData.TITLES[getRandomInt(0, MockData.TITLES.length)],
-  rating: getRandomFloat(Ratings.MIN, Ratings.MAX),
-  year: getRandomInt(Years.MIN, Years.MAX),
+  original: MockData.TITLES[getRandomInt(0, MockData.TITLES.length)],
+  totalRating: getRandomFloat(Ratings.MIN, Ratings.MAX),
+  userRating: getRandomInt(UserRatings.MIN, UserRatings.MAX),
+  realise: Date.now() - Math.floor(Math.floor(Math.random() * TimeConstants.YEAR_COUNTS) * Math.floor(Math.random() * TimeConstants.MONTH_COUNT) * Math.floor(Math.random() * TimeConstants.DAYS_COUNT)),
+  director: getRandomElement(MockData.DIRECTORS),
+  writers: new Set(new Array(getRandomInt(MIN_SENTENTES, MAX_SENTENTES))
+  .fill()
+  .map(() => getRandomElement(MockData.WRITERS))),
+  authors: new Set(new Array(getRandomInt(MIN_SENTENTES, MAX_ACTORS))
+  .fill()
+  .map(() => getRandomElement(MockData.AUTHORS))),
+  country: getRandomElement(MockData.COUNTRY),
   duration: getRandomInt(Duration.MIN, Duration.MAX),
-  genre: MockData.GENRES[getRandomInt(0, MockData.GENRES.length)],
+  genres: new Set(new Array(getRandomInt(MIN_SENTENTES, MAX_SENTENTES))
+    .fill()
+    .map(() => getRandomElement(MockData.GENRES))),
   poster: `http://picsum.photos/232/342?r=${Math.random()}`,
   description: new Array(getRandomInt(MIN_SENTENTES, MAX_SENTENTES))
   .fill()
   .map(() => getRandomElement(MockData.TEXTS)).join(` `),
   comments: new Array(getRandomInt(MIN_COMMENT_COUNT, MAX_COMMENT_COUNT))
     .fill()
-    .map(() => getRandomElement(MockData.TEXTS)),
-  isAdditional: MockData.ADDITIONAL[getRandomInt(0, MockData.ADDITIONAL.length)],
+    .map(() => ({
+      emoji: getRandomElement(MockComment.EMOJI),
+      author: `${getRandomElement(MockComment.AUTHOR_NAME)} ${getRandomElement(MockComment.AUTHON_SURNAME)}`,
+      published: Date.now() - Math.floor(Math.random() * TimeConstants.DAYS_COUNT * TimeConstants.DAYS_COUNT) * TimeConstants.HOUR_COUNTS * Math.floor(Math.random() * TimeConstants.MINUTES_COUNT) * Math.floor(Math.random() * TimeConstants.SECONDS_COUNT) * TimeConstants.MSECONDS_COUNT,
+      text: new Array(getRandomInt(MIN_SENTENTES, MAX_SENTENTES))
+      .fill()
+      .map(() => getRandomElement(MockData.TEXTS)).join(` `),
+    })),
+  isWatched: MockData.ADDITIONAL[getRandomInt(0, MockData.ADDITIONAL.length)],
   isFavorites: MockData.ADDITIONAL[getRandomInt(0, MockData.ADDITIONAL.length)],
   isWatchList: MockData.ADDITIONAL[getRandomInt(0, MockData.ADDITIONAL.length)],
   age: MockData.AGE[getRandomInt(0, MockData.AGE.length)]
