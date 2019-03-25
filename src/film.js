@@ -77,9 +77,9 @@ export default class Film extends Component {
 
   update(collection) {
     this._userRating = collection.userRating;
-    this._isWatched = (collection.isWatched) ? true : false;
-    this._isFavorites = (collection.isFavorites) ? true : false;
-    this._isWatchList = (collection.isWatchList) ? true : false;
+    this._isWatched = collection.isWatched;
+    this._isFavorites = collection.isFavorites;
+    this._isWatchList = collection.isWatchList;
     this._comments = collection.comments;
   }
 }
