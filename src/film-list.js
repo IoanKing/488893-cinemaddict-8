@@ -1,30 +1,56 @@
 import Film from "./film";
+import FilmDetail from "./film-details";
 import {mockdata} from "./mock";
 
 export default class FilmList {
-  constructor() {
+  constructor(container) {
+    this._container = container;
     this._collection = this._getCollection(mockdata);
-    this._element = null;
-    this._onFilterData = Object.values(this._collection);
+    this._popupContainer = null;
   }
 
-  _makeFilm(element) {
-    const newFilm = new Film(element);
+  _makeFilm(film) {
+    const newFilm = new Film(film);
+    newFilm.render();
+
+    newFilm.onClick = () => {
+      const filmDetail = new FilmDetail(film);
+      filmDetail.render();
+      this._popupContainer.insertAdjacentElement(`beforeend`, filmDetail.element);
+
+      filmDetail.onClose = (newObject) => {
+        film.userRating = newObject.userRating;
+        film.isWatched = newObject.isWatched;
+        film.isFavorites = newObject.isFavorites;
+        film.isWatchList = newObject.isWatchList;
+        if (newObject.commentText.trim() !== ``) {
+          film.comments.push({
+            emoji: newObject.commentEmoji,
+            author: `Unknown`,
+            published: Date.now(),
+            text: newObject.commentText,
+          });
+        }
+
+        newFilm.update(film);
+        newFilm.render();
+        filmDetail.unrender();
+        this.render();
+      };
+    };
     return newFilm;
   }
 
   _getCollection(collection) {
-    const Films = [];
+    const films = [];
     collection.forEach((element) => {
-      Films.push(this._makeFilm(element));
+      films.push(this._makeFilm(element));
     });
-    return Films;
+    return films;
   }
 
-  set onClick(fn) {
-    this._collection.forEach((element) => {
-      element.onClick = fn;
-    });
+  set popupContainer(container) {
+    this._popupContainer = container;
   }
 
   set Filter(fn) {
@@ -32,16 +58,16 @@ export default class FilmList {
   }
 
   set defaultContainer(obj) {
-    this._element = obj;
+    this._container = obj;
   }
 
   get collection() {
     return this._collection;
   }
 
-  render(container = this._element, isControls = true) {
+  render(container = this._container, isControls = true) {
     container.innerHTML = ``;
-    const partOfElements = this._onFilter(this._onFilterData);
+    const partOfElements = this._onFilter(this._collection);
 
     const fragment = document.createDocumentFragment();
     partOfElements.forEach((it) => {
@@ -50,16 +76,6 @@ export default class FilmList {
     });
     container.appendChild(fragment);
 
-  }
-
-  unrender() {
-    this._onFilterData = Object.values(this._collection);
-  }
-
-  update(collection) {
-    this.unrender();
-    this._onFilterData = collection;
-    this.render();
   }
 
   addListener() {

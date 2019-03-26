@@ -1,6 +1,5 @@
 import Selector from "./selectors";
 import FilmList from "./film-list";
-import FilmDetail from "./film-details";
 import FilterList from "./filter-list";
 import {DEFAULT_EXTRA_COUNT, MAX_MOVIE_COUNT} from "./utils";
 
@@ -22,20 +21,6 @@ const filterTopComment = (collection) => {
   return Object.values(collection).sort((a, b) => b._comments.length - a._comments.length).slice(0, DEFAULT_EXTRA_COUNT);
 };
 
-let correntPopup = null;
-
-const onOpenPopup = (collection) => {
-  correntPopup = new FilmDetail(collection);
-  correntPopup.container = body;
-  correntPopup.render();
-  correntPopup.onClose = onClosePopup.bind(correntPopup);
-};
-
-const onClosePopup = (collection) => {
-  collection.unrender();
-  correntPopup = null;
-};
-
 /**
  * Инициализация скриптов для сайта.
  *  Запускает фнукцию отрисовки фильтров;
@@ -44,17 +29,11 @@ const onClosePopup = (collection) => {
  *  Запускает обработкик обработки клика на фильтр.
  */
 const init = () => {
-  const filmList = new FilmList();
-  const filterList = new FilterList();
-  filmList.onClick = onOpenPopup;
+  const filmList = new FilmList(filmContainer);
+  filmList.popupContainer = body;
+  const filterList = new FilterList(navigation);
   filterList.onFilmList = filmList;
   filterList.render(navigation);
-
-  filmList.defaultContainer = filmContainer;
-
-  filmList.Filter = filterDefault;
-  filmList.isShowDetail = true;
-  filmList.render();
 
   filmList.Filter = filterTopRated;
   filmList.isShowDetail = false;
@@ -63,6 +42,10 @@ const init = () => {
   filmList.Filter = filterTopComment;
   filmList.isShowDetail = false;
   filmList.render(commentedFilmContainer, false);
+
+  filmList.Filter = filterDefault;
+  filmList.isShowDetail = true;
+  filmList.render(filmContainer);
 };
 
 init();
