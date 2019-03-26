@@ -1,6 +1,6 @@
 import {getRandomInt, getRandomElement, getRandomFloat} from "./utils";
 
-const MAX_MOVIE_COUNT = 50;
+const MAX_MOVIE_COUNT = 10;
 
 const MIN_COMMENT_COUNT = 0;
 const MAX_COMMENT_COUNT = 10;
@@ -38,7 +38,7 @@ const Duration = {
 const MockComment = {
   EMOJI: [
     `sleeping`,
-    `neutral-fac`,
+    `neutral-face`,
     `grinning`,
   ],
   TEXT: [

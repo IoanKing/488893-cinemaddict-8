@@ -6,7 +6,7 @@ const MAX_MOVIE_COUNT = 10;
 
 const Emoji = {
   "sleeping": `😴`,
-  "neutral-fac": `😐`,
+  "neutral-face": `😐`,
   "grinning": `😀`,
 };
 

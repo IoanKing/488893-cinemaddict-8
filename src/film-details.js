@@ -6,25 +6,25 @@ import moment from "moment";
 export default class FilmDetails extends Component {
   constructor(collection) {
     super();
-    this._title = collection.title;
-    this._original = collection.original;
-    this._director = collection.director;
-    this._writers = collection.writers;
-    this._authors = collection.authors;
-    this._totalRating = collection.totalRating;
-    this._userRating = collection.userRating;
-    this._realise = collection.realise;
-    this._duration = collection.duration;
-    this._genres = collection.genres;
-    this._poster = collection.poster;
-    this._description = collection.description;
-    this._comments = collection.comments;
-    this._age = collection.age;
-    this._country = collection.country;
+    this._title = collection._title;
+    this._original = collection._original;
+    this._director = collection._director;
+    this._writers = collection._writers;
+    this._authors = collection._authors;
+    this._totalRating = collection._totalRating;
+    this._userRating = collection._userRating;
+    this._realise = collection._realise;
+    this._duration = collection._duration;
+    this._genres = collection._genres;
+    this._poster = collection._poster;
+    this._description = collection._description;
+    this._comments = collection._comments;
+    this._age = collection._age;
+    this._country = collection._country;
 
-    this._isWatched = collection.isWatched;
-    this._isFavorites = collection.isFavorites;
-    this._isWatchList = collection.isWatchList;
+    this._isWatched = collection._isWatched;
+    this._isFavorites = collection._isFavorites;
+    this._isWatchList = collection._isWatchList;
 
     this._onCloseButtonClick = this._onCloseButtonClick.bind(this);
   }
@@ -42,15 +42,33 @@ export default class FilmDetails extends Component {
   _processForm(formData) {
     const entry = {
       userRating: ``,
+      isWatched: false,
+      isFavorites: false,
+      isWatchList: false,
+      comments: this._comments,
     };
 
     const filmDetailMapper = FilmDetails.createMapper(entry);
+    const newComment = {};
 
     for (const pair of formData.entries()) {
       const [property, value] = pair;
-      if (filmDetailMapper[property]) {
+      if (filmDetailMapper[property] && property !== `comment` && property !== `commentEmoji`) {
         filmDetailMapper[property](value);
       }
+      if (property === `comment`) {
+        newComment.text = value;
+      }
+      if (property === `commentEmoji`) {
+        newComment.emoji = value;
+      }
+    }
+
+    newComment.author = `Unknown`;
+    newComment.published = new Date();
+
+    if (newComment.text.trim() !== ``) {
+      entry.comments.push(newComment);
     }
 
     return entry;
@@ -69,12 +87,6 @@ export default class FilmDetails extends Component {
       },
       watchlist: (value) => {
         target.isWatchList = (value === `on`);
-      },
-      comment: (value) => {
-        target.commentText = `${value}`;
-      },
-      commentEmoji: (value) => {
-        target.commentEmoji = value;
       },
     };
   }
