@@ -179,34 +179,9 @@ const MockData = {
   ]
 };
 
-const FilterMockData = [
-  {
-    title: `All movies`,
-    slug: `all`,
-    count: 0,
-  },
-  {
-    title: `Watchlist`,
-    slug: `watchlist`,
-    count: 13,
-  },
-  {
-    title: `History`,
-    slug: `history`,
-    count: 4,
-  },
-  {
-    title: `Favorites`,
-    slug: `favorites`,
-    count: 8,
-  },
-  {
-    title: `Stats`,
-    slug: `stats`,
-    count: 8,
-  }
-];
-
+/**
+ * @return {object} Струкутра карточки фильма.
+ */
 const getFilm = () => ({
   title: MockData.TITLES[getRandomInt(0, MockData.TITLES.length)],
   original: MockData.TITLES[getRandomInt(0, MockData.TITLES.length)],
@@ -257,6 +232,4 @@ const getMockCollection = () => {
   return collection;
 };
 
-const mockdata = getMockCollection();
-
-export {mockdata, FilterMockData};
+export default getMockCollection();

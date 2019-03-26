@@ -1,6 +1,8 @@
 const MIN_COUNT = 0;
 const MAX_COUNT = 30;
 
+const MAX_RATING = 9;
+
 const DEFAULT_EXTRA_COUNT = 2;
 const MAX_MOVIE_COUNT = 10;
 
@@ -45,4 +47,4 @@ const createElement = (elementTemplate, isMultiplyElement = false) => {
   return (isMultiplyElement) ? newElement : newElement.firstChild;
 };
 
-export {getRandomInt, getRandomElement, getRandomFloat, createElement, DEFAULT_EXTRA_COUNT, MAX_MOVIE_COUNT, Emoji};
+export {getRandomInt, getRandomElement, getRandomFloat, createElement, DEFAULT_EXTRA_COUNT, MAX_MOVIE_COUNT, Emoji, MAX_RATING};

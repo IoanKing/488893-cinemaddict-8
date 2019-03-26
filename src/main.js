@@ -1,5 +1,5 @@
 import Selector from "./selectors";
-import {mockdata} from "./mock";
+import mockdata from "./mock";
 import Film from "./film";
 import FilmDetail from "./film-details";
 import Filter from "./filter";
@@ -14,6 +14,13 @@ const commentedFilmContainer = document.querySelector(`#${Selector.COMMENTED_MOV
 const body = document.querySelector(`${Selector.BODY}`);
 let activeFilter = `all`;
 
+/**
+ * Обновляет струкутру объекта - меняет старый объект на новый.
+ * @param {object} films - коллекция обьектов
+ * @param {object} filmToUpdate - изменяемый обьект
+ * @param {object} newFilm - новый обьект (изменяемые данные)
+ * @return {object} обновленный элемент.
+ */
 const updateFilm = (films, filmToUpdate, newFilm) => {
   const index = films.findIndex((it) => it === filmToUpdate);
   films[index] = Object.assign({}, filmToUpdate, newFilm);
@@ -21,6 +28,12 @@ const updateFilm = (films, filmToUpdate, newFilm) => {
   return films[index];
 };
 
+/**
+ * Фильтрация коллекции обьектов.
+ * @param {object} films - коллекция обьектов.
+ * @param {string} filtername - наименование фильтра.
+ * @return {object} - отфильтрованная коллекция.
+ */
 const filterFilms = (films, filtername) => {
   switch (filtername) {
     case `favorites`:
@@ -40,6 +53,11 @@ const filterFilms = (films, filtername) => {
   }
 };
 
+/**
+ * Отрисовка фильтров на странице.
+ * @param {object} Films - коллекция обьектов.
+ * @param {object} container - DOM элемент, в котором будет выполняться отрисовка.
+ */
 const renderFilters = (Films, container) => {
   const Filters = [
     {
@@ -75,6 +93,12 @@ const renderFilters = (Films, container) => {
   }
 };
 
+/**
+ * Отрисовка карточек фильмов на странице.
+ * @param {object} Films - коллекция обьектов для торисовки.
+ * @param {object} container - DOM элемент, в котором будет выполняться отрисовка.
+ * @param {bool} isControl - признак отрисовки контролов для обьекта.
+ */
 const renderFilmList = (Films, container, isControl = false) => {
   container.innerHTML = ``;
 
@@ -84,13 +108,39 @@ const renderFilmList = (Films, container, isControl = false) => {
 
     container.appendChild(filmComponent.render());
 
+    filmComponent.onAddToWatchList = (newObject) => {
+      console.log(`onAddToWatchList`);
+      console.log(newObject);
+      const updatedFilm = updateFilm(Films, film, newObject);
+      console.log(FilmList);
+      filmComponent.update(updatedFilm);
+      console.log(filmComponent);
+    };
+
+    filmComponent.onMarkAsWatched = (newObject) => {
+      console.log(`onMarkAsWatched`);
+      console.log(newObject);
+      const updatedFilm = updateFilm(Films, film, newObject);
+      console.log(updatedFilm);
+      filmComponent.update(updatedFilm);
+      console.log(filmComponent);
+    };
+
+    filmComponent.onMarkAsFavorite = (newObject) => {
+      console.log(`onMarkAsFavorite`);
+      console.log(newObject);
+      const updatedFilm = updateFilm(Films, film, newObject);
+      console.log(updatedFilm);
+      filmComponent.update(updatedFilm);
+      console.log(filmComponent);
+    };
+
     filmComponent.onClick = () => {
-      const filmDetailComponent = new FilmDetail(filmComponent);
+      const filmDetailComponent = new FilmDetail(film);
       body.insertAdjacentElement(`beforeend`, filmDetailComponent.render());
 
       filmDetailComponent.onClose = (newObject) => {
         const updatedFilm = updateFilm(Films, film, newObject);
-
         const oldElement = filmComponent.element;
         filmComponent.update(updatedFilm);
         filmComponent.render();
@@ -102,6 +152,11 @@ const renderFilmList = (Films, container, isControl = false) => {
   }
 };
 
+/**
+ * установка класса Активности на фильтр.
+ * @param {object} container - DOM элемент, со списком фильтров.
+ * @param {string} filterName - наименование фильтра.
+ */
 const setActiveFilter = (container, filterName) => {
   const filters = container.querySelectorAll(`.${Selector.NAVIGATION_ITEM}`);
   filters.forEach((it) => {
@@ -111,15 +166,14 @@ const setActiveFilter = (container, filterName) => {
       filterName = it.getAttribute(`href`).split(`#`).pop();
     }
   });
-  return filterName;
 };
 
 /**
  * Инициализация скриптов для сайта.
- *  Запускает фнукцию отрисовки фильтров;
- *  Запускает функцию генерации случайной коллекции задач;
- *  Запускает функцию орисовки карточек задач;
- *  Запускает обработкик обработки клика на фильтр.
+ *  Запускает функцию отрисовки фильтров;
+ *  Запускает функцию установки активного фильтра;
+ *  Запускает функцию орисовки карточек задач в разных секциях документа;
+ *  Запускает обработкик клика на фильтр.
  */
 const init = () => {
   renderFilters(FilmList, filtersContainer);

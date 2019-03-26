@@ -1,30 +1,30 @@
 import Selector from "./selectors";
 import Component from "./component";
-import {Emoji} from "./utils";
+import {Emoji, MAX_RATING} from "./utils";
 import moment from "moment";
 
 export default class FilmDetails extends Component {
   constructor(collection) {
     super();
-    this._title = collection._title;
-    this._original = collection._original;
-    this._director = collection._director;
-    this._writers = collection._writers;
-    this._authors = collection._authors;
-    this._totalRating = collection._totalRating;
-    this._userRating = collection._userRating;
-    this._realise = collection._realise;
-    this._duration = collection._duration;
-    this._genres = collection._genres;
-    this._poster = collection._poster;
-    this._description = collection._description;
-    this._comments = collection._comments;
-    this._age = collection._age;
-    this._country = collection._country;
+    this._title = collection.title;
+    this._original = collection.original;
+    this._director = collection.director;
+    this._writers = collection.writers;
+    this._authors = collection.authors;
+    this._totalRating = collection.totalRating;
+    this._userRating = collection.userRating;
+    this._realise = collection.realise;
+    this._duration = collection.duration;
+    this._genres = collection.genres;
+    this._poster = collection.poster;
+    this._description = collection.description;
+    this._comments = collection.comments;
+    this._age = collection.age;
+    this._country = collection.country;
 
-    this._isWatched = collection._isWatched;
-    this._isFavorites = collection._isFavorites;
-    this._isWatchList = collection._isWatchList;
+    this._isWatched = collection.isWatched;
+    this._isFavorites = collection.isFavorites;
+    this._isWatchList = collection.isWatchList;
 
     this._onCloseButtonClick = this._onCloseButtonClick.bind(this);
   }
@@ -225,42 +225,21 @@ export default class FilmDetails extends Component {
 
           <div class="film-details__user-score">
             <div class="film-details__user-rating-poster">
-              <img src="images/posters/blackmail.jpg" alt="film-poster" class="film-details__user-rating-img">
+              <img src="${this._poster}" alt="film-poster" class="film-details__user-rating-img">
             </div>
 
             <section class="film-details__user-rating-inner">
-              <h3 class="film-details__user-rating-title">Incredibles 2</h3>
+              <h3 class="film-details__user-rating-title">${this._title}</h3>
 
               <p class="film-details__user-rating-feelings">How you feel it?</p>
 
               <div class="film-details__user-rating-score">
-                <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="1" id="rating-1" ${(this._userRating === 1) ? `checked` : ``}>
-                <label class="film-details__user-rating-label" for="rating-1">1</label>
-
-                <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="2" id="rating-2" ${(this._userRating === 2) ? `checked` : ``}>
-                <label class="film-details__user-rating-label" for="rating-2">2</label>
-
-                <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="3" id="rating-3" ${(this._userRating === 3) ? `checked` : ``}>
-                <label class="film-details__user-rating-label" for="rating-3">3</label>
-
-                <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="4" id="rating-4" ${(this._userRating === 4) ? `checked` : ``}>
-                <label class="film-details__user-rating-label" for="rating-4">4</label>
-
-                <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="5" id="rating-5" ${(this._userRating === 5) ? `checked` : ``}>
-                <label class="film-details__user-rating-label" for="rating-5">5</label>
-
-                <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="6" id="rating-6" ${(this._userRating === 6) ? `checked` : ``}>
-                <label class="film-details__user-rating-label" for="rating-6">6</label>
-
-                <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="7" id="rating-7" ${(this._userRating === 7) ? `checked` : ``}>
-                <label class="film-details__user-rating-label" for="rating-7">7</label>
-
-                <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="8" id="rating-8" ${(this._userRating === 8) ? `checked` : ``}>
-                <label class="film-details__user-rating-label" for="rating-8">8</label>
-
-                <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="9" id="rating-9" ${(this._userRating === 9) ? `checked` : ``}>
-                <label class="film-details__user-rating-label" for="rating-9">9</label>
-
+              ${ (new Array(MAX_RATING)
+                .fill()
+                .map((value, i) => (`
+                  <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="${i + 1}" id="rating-${i + 1}" ${ this._userRating === i + 1 ? `checked` : ``}>
+                  <label class="film-details__user-rating-label" for="rating-${i + 1}">${i + 1}</label>
+                `).trim())).join(``) }
               </div>
             </section>
           </div>

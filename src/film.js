@@ -26,6 +26,9 @@ export default class Film extends Component {
     this._isWatchList = collection.isWatchList;
 
     this._onEditButtonClick = this._onEditButtonClick.bind(this);
+    this._onAddToWatchList = this._onAddToWatchList.bind(this);
+    this._onMarkAsWatched = this._onMarkAsWatched.bind(this);
+    this._onMarkAsFavorite = this._onMarkAsFavorite.bind(this);
     this._status = {
       isControl: false
     };
@@ -37,8 +40,53 @@ export default class Film extends Component {
     }
   }
 
+  _onAddToWatchList(evt) {
+    evt.preventDefault();
+    if (evt.target.classList.contains(Selector.CONTROL_WATCHLIST) && typeof this._onWatchList === `function`) {
+      const newData = {
+        isWatchList: !this._isWatchList
+      };
+      this._onWatchList(newData);
+      this.update(newData);
+    }
+  }
+
+  _onMarkAsWatched(evt) {
+    evt.preventDefault();
+    if (evt.target.classList.contains(Selector.CONTROL_WATCHED) && typeof this._onWatched === `function`) {
+      const newData = {
+        isWatched: !this._isWatched
+      };
+      this._onWatched(newData);
+      this.update(newData);
+    }
+  }
+
+  _onMarkAsFavorite(evt) {
+    evt.preventDefault();
+    if (evt.target.classList.contains(Selector.CONTROL_FAVORITE) && typeof this._onFavorite === `function`) {
+      const newData = {
+        isFavorites: !this._isFavorites
+      };
+      this._onFavorite(newData);
+      this.update(newData);
+    }
+  }
+
   set onClick(fn) {
     this._onClick = fn;
+  }
+
+  set onAddToWatchList(fn) {
+    this._onWatchList = fn;
+  }
+
+  set onMarkAsWatched(fn) {
+    this._onWatched = fn;
+  }
+
+  set onMarkAsFavorite(fn) {
+    this._onFavorite = fn;
   }
 
   get template() {
@@ -69,10 +117,16 @@ export default class Film extends Component {
 
   addListener() {
     this._element.addEventListener(`click`, this._onEditButtonClick);
+    this._element.addEventListener(`click`, this._onAddToWatchList);
+    this._element.addEventListener(`click`, this._onMarkAsWatched);
+    this._element.addEventListener(`click`, this._onMarkAsFavorite);
   }
 
   removeListener() {
     this._element.removeEventListener(`click`, this._onEditButtonClick);
+    this._element.removeEventListener(`click`, this._onAddToWatchList);
+    this._element.removeEventListener(`click`, this._onMarkAsWatched);
+    this._element.removeEventListener(`click`, this._onMarkAsFavorite);
   }
 
   update(collection) {
