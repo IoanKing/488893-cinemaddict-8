@@ -108,35 +108,20 @@ const renderFilmList = (Films, container, isControl = false) => {
 
     container.appendChild(filmComponent.render());
 
-    filmComponent.onAddToWatchList = (newObject) => {
-      console.log(`onAddToWatchList`);
-      console.log(newObject);
-      const updatedFilm = updateFilm(Films, film, newObject);
-      console.log(FilmList);
-      filmComponent.update(updatedFilm);
-      console.log(filmComponent);
+    filmComponent.onAddToWatchList = (bool) => {
+      film.isWatchList = bool;
     };
 
-    filmComponent.onMarkAsWatched = (newObject) => {
-      console.log(`onMarkAsWatched`);
-      console.log(newObject);
-      const updatedFilm = updateFilm(Films, film, newObject);
-      console.log(updatedFilm);
-      filmComponent.update(updatedFilm);
-      console.log(filmComponent);
+    filmComponent.onMarkAsWatched = (bool) => {
+      film.isWatched = bool;
     };
 
-    filmComponent.onMarkAsFavorite = (newObject) => {
-      console.log(`onMarkAsFavorite`);
-      console.log(newObject);
-      const updatedFilm = updateFilm(Films, film, newObject);
-      console.log(updatedFilm);
-      filmComponent.update(updatedFilm);
-      console.log(filmComponent);
+    filmComponent.onMarkAsFavorite = (bool) => {
+      film.isFavorites = bool;
     };
 
     filmComponent.onClick = () => {
-      const filmDetailComponent = new FilmDetail(film);
+      const filmDetailComponent = new FilmDetail(filmComponent.filmData);
       body.insertAdjacentElement(`beforeend`, filmDetailComponent.render());
 
       filmDetailComponent.onClose = (newObject) => {

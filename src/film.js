@@ -42,34 +42,25 @@ export default class Film extends Component {
 
   _onAddToWatchList(evt) {
     evt.preventDefault();
-    if (evt.target.classList.contains(Selector.CONTROL_WATCHLIST) && typeof this._onWatchList === `function`) {
-      const newData = {
-        isWatchList: !this._isWatchList
-      };
-      this._onWatchList(newData);
-      this.update(newData);
+    if (typeof this._onWatchList === `function`) {
+      this._isWatchList = !this._isWatchList;
+      this._onWatchList(this._isWatchList);
     }
   }
 
   _onMarkAsWatched(evt) {
     evt.preventDefault();
-    if (evt.target.classList.contains(Selector.CONTROL_WATCHED) && typeof this._onWatched === `function`) {
-      const newData = {
-        isWatched: !this._isWatched
-      };
-      this._onWatched(newData);
-      this.update(newData);
+    if (typeof this._onWatched === `function`) {
+      this._isWatched = !this._isWatched;
+      this._onWatched(this._isWatched);
     }
   }
 
   _onMarkAsFavorite(evt) {
     evt.preventDefault();
-    if (evt.target.classList.contains(Selector.CONTROL_FAVORITE) && typeof this._onFavorite === `function`) {
-      const newData = {
-        isFavorites: !this._isFavorites
-      };
-      this._onFavorite(newData);
-      this.update(newData);
+    if (typeof this._onFavorite === `function`) {
+      this._isFavorites = !this._isFavorites;
+      this._onFavorite(this._isFavorites);
     }
   }
 
@@ -87,6 +78,29 @@ export default class Film extends Component {
 
   set onMarkAsFavorite(fn) {
     this._onFavorite = fn;
+  }
+
+  get filmData() {
+    return {
+      title: this._title,
+      original: this._original,
+      totalRating: this._totalRating,
+      userRating: this._userRating,
+      director: this._director,
+      writers: this._writers,
+      authors: this._authors,
+      realise: this._realise,
+      duration: this._duration,
+      genres: this._genres,
+      poster: this._poster,
+      description: this._description,
+      comments: this._comments,
+      country: this._country,
+      age: this._age,
+      isWatched: this._isWatched,
+      isFavorites: this._isFavorites,
+      isWatchList: this._isWatchList,
+    };
   }
 
   get template() {
@@ -117,16 +131,26 @@ export default class Film extends Component {
 
   addListener() {
     this._element.addEventListener(`click`, this._onEditButtonClick);
-    this._element.addEventListener(`click`, this._onAddToWatchList);
-    this._element.addEventListener(`click`, this._onMarkAsWatched);
-    this._element.addEventListener(`click`, this._onMarkAsFavorite);
+    if (this._status.isControl) {
+      this._element.querySelector(`.${Selector.CONTROL_WATCHLIST}`)
+        .addEventListener(`click`, this._onAddToWatchList);
+      this._element.querySelector(`.${Selector.CONTROL_WATCHED}`)
+        .addEventListener(`click`, this._onMarkAsWatched);
+      this._element.querySelector(`.${Selector.CONTROL_FAVORITE}`)
+        .addEventListener(`click`, this._onMarkAsFavorite);
+    }
   }
 
   removeListener() {
     this._element.removeEventListener(`click`, this._onEditButtonClick);
-    this._element.removeEventListener(`click`, this._onAddToWatchList);
-    this._element.removeEventListener(`click`, this._onMarkAsWatched);
-    this._element.removeEventListener(`click`, this._onMarkAsFavorite);
+    if (this._status.isControl) {
+      this._element.querySelector(`.${Selector.CONTROL_WATCHLIST}`)
+        .removeEventListener(`click`, this._onAddToWatchList);
+      this._element.querySelector(`.${Selector.CONTROL_WATCHED}`)
+        .removeEventListener(`click`, this._onMarkAsWatched);
+      this._element.querySelector(`.${Selector.CONTROL_FAVORITE}`)
+        .removeEventListener(`click`, this._onMarkAsFavorite);
+    }
   }
 
   update(collection) {
