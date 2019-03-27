@@ -93,6 +93,7 @@ const renderFilters = (Films, container) => {
       const filterName = evt.target.getAttribute(`href`).split(`#`).pop();
       const filteredFilms = filterFilms(FilmList, filterName);
       renderFilmList(filteredFilms, filmContainer, true);
+      setActiveFilter(filtersContainer, filterName);
     };
 
     container.insertAdjacentElement(`afterbegin`, filterComponent.render());

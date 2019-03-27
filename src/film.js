@@ -107,7 +107,7 @@ export default class Film extends Component {
     return `
     <article class="film-card ${(this._status.isControl) ? `` : `film-card--no-controls`}">
     <h3 class="film-card__title">${this._title}</h3>
-    <p class="film-card__rating">${this._totalRating} (${this._userRating})</p>
+    <p class="film-card__rating">${this._totalRating}</p>
     <p class="film-card__info">
       <span class="film-card__realise">${moment(this._realise).format(`YYYY`)}</span>
       <span class="film-card__duration">${(this._duration) >= 60 ? `${Math.floor(this._duration / 60)}h ${this._duration % 60}m` : `${this._duration}m`}</span>
