@@ -9,6 +9,19 @@ export default class Filter extends Component {
     this._isWatched = collection.isWatched;
 
     this._element = null;
+    this._onFilter = null;
+    this._onFilterClick = this._onFilterClick.bind(this);
+  }
+
+  _onFilterClick(evt) {
+    evt.preventDefault();
+    if (typeof this._onFilter === `function`) {
+      this._onFilter(evt);
+    }
+  }
+
+  set onFilter(fn) {
+    this._onFilter = fn;
   }
 
   get template() {
@@ -18,5 +31,17 @@ export default class Filter extends Component {
       class="main-navigation__item ${(this._isWatched) ? `main-navigation__item--additional` : ``}"
       >${this._title} ${(this._slug !== `all`) ? span : ``}</a>`
       .trim();
+  }
+
+  addListener() {
+    this._element.addEventListener(`click`, this._onFilterClick);
+  }
+
+  removeListener() {
+    this._element.removeEventListener(`click`, this._onFilterClick);
+  }
+
+  update(newCount) {
+    this._count = newCount;
   }
 }

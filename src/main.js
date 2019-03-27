@@ -89,6 +89,12 @@ const renderFilters = (Films, container) => {
   for (const filter of Filters) {
     const filterComponent = new Filter(filter);
 
+    filterComponent.onFilter = (evt) => {
+      const filterName = evt.target.getAttribute(`href`).split(`#`).pop();
+      const filteredFilms = filterFilms(FilmList, filterName);
+      renderFilmList(filteredFilms, filmContainer, true);
+    };
+
     container.insertAdjacentElement(`afterbegin`, filterComponent.render());
   }
 };
@@ -161,31 +167,17 @@ const setActiveFilter = (container, filterName) => {
  *  Запускает обработкик клика на фильтр.
  */
 const init = () => {
-  renderFilters(FilmList, filtersContainer);
-  setActiveFilter(filtersContainer, activeFilter);
-
   const allFilms = filterFilms(FilmList);
   renderFilmList(allFilms, filmContainer, true);
+
+  renderFilters(FilmList, filtersContainer);
+  setActiveFilter(filtersContainer, activeFilter);
 
   const topRatedFilms = filterFilms(FilmList, `top-rated`);
   renderFilmList(topRatedFilms, topFilmContainer, false);
 
   const topCommentedFilms = filterFilms(FilmList, `top-commented`);
   renderFilmList(topCommentedFilms, commentedFilmContainer, false);
-
-  const onChangeFilter = (evt) => {
-    if (evt.target.classList.contains(Selector.NAVIGATION_ITEM) && evt.target.hasAttribute(`href`)) {
-      const filterName = evt.target.getAttribute(`href`).split(`#`).pop();
-      const filteredTasks = filterFilms(FilmList, filterName);
-      renderFilmList(filteredTasks, filmContainer, true);
-      setActiveFilter(filtersContainer, filterName);
-
-      const topCommentedFilmsFiltered = filterFilms(FilmList, `top-commented`);
-      renderFilmList(topCommentedFilmsFiltered, commentedFilmContainer, false);
-    }
-  };
-
-  filtersContainer.addEventListener(`click`, onChangeFilter);
 };
 
 init();
