@@ -1,6 +1,6 @@
 import {getRandomInt, getRandomElement, getRandomFloat} from "./utils";
 
-const MAX_MOVIE_COUNT = 10;
+const MAX_MOVIE_COUNT = 30;
 
 const MIN_COMMENT_COUNT = 0;
 const MAX_COMMENT_COUNT = 10;
@@ -103,7 +103,10 @@ const MockData = {
     `Action`,
     `Dram`,
     `Adventure`,
-    `Animation`
+    `Animation`,
+    `Sci-Fi`,
+    `Fantasy`,
+    `TV Series`,
   ],
   AGE: [
     `0+`,

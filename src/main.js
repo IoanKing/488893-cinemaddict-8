@@ -3,6 +3,7 @@ import mockdata from "./mock";
 import Film from "./film";
 import FilmDetail from "./film-details";
 import Filter from "./filter";
+import {Statictics} from "./statistics";
 import {DEFAULT_EXTRA_COUNT, MAX_MOVIE_COUNT} from "./utils";
 
 const FilmList = mockdata;
@@ -11,7 +12,8 @@ const filtersContainer = document.querySelector(`.${Selector.NAVIGATION}`);
 const filmContainer = document.querySelector(`.${Selector.CONTAINER}`);
 const topFilmContainer = document.querySelector(`#${Selector.TOP_MOVIE}`);
 const commentedFilmContainer = document.querySelector(`#${Selector.COMMENTED_MOVIE}`);
-const body = document.querySelector(`${Selector.BODY}`);
+const bodyContainer = document.querySelector(`${Selector.BODY}`);
+const mainContainer = document.querySelector(`${Selector.MAIN}`);
 let activeFilter = `all`;
 
 /**
@@ -32,25 +34,35 @@ const updateFilm = (films, filmToUpdate, newFilm) => {
  * Фильтрация коллекции обьектов.
  * @param {object} films - коллекция обьектов.
  * @param {string} filtername - наименование фильтра.
+ * @param {bool} isLimited - Ограничение на количество элементов.
  * @return {object} - отфильтрованная коллекция.
  */
-const filterFilms = (films, filtername) => {
+const filterFilms = (films, filtername, isLimited = true) => {
+  let data = {};
   switch (filtername) {
     case `favorites`:
-      return Object.values(films).filter((it) => it.isFavorites).slice(0, Math.min(MAX_MOVIE_COUNT, films.length));
+      data = Object.values(films).filter((it) => it.isFavorites);
+      break;
     case `watchlist`:
-      return Object.values(films).filter((it) => it.isWatchList).slice(0, Math.min(MAX_MOVIE_COUNT, films.length));
+      data = Object.values(films).filter((it) => it.isWatchList);
+      break;
     case `history`:
-      return Object.values(films).filter((it) => it.isWatched).slice(0, Math.min(MAX_MOVIE_COUNT, films.length));
+      data = Object.values(films).filter((it) => it.isWatched);
+      break;
     case `all`:
-      return Object.values(films).slice(0, Math.min(MAX_MOVIE_COUNT, films.length));
+      data = Object.values(films);
+      break;
     case `top-rated`:
-      return Object.values(films).sort((a, b) => b.totalRating - a.totalRating).slice(0, DEFAULT_EXTRA_COUNT);
+      data = Object.values(films).sort((a, b) => b.totalRating - a.totalRating).slice(0, DEFAULT_EXTRA_COUNT);
+      break;
     case `top-commented`:
-      return Object.values(films).sort((a, b) => b.comments.length - a.comments.length).slice(0, DEFAULT_EXTRA_COUNT);
+      data = Object.values(films).sort((a, b) => b.comments.length - a.comments.length).slice(0, DEFAULT_EXTRA_COUNT);
+      break;
     default:
-      return Object.values(films).slice(0, Math.min(MAX_MOVIE_COUNT, films.length));
+      data = Object.values(films);
+      break;
   }
+  return (isLimited) ? data.slice(0, Math.min(MAX_MOVIE_COUNT, data.length)) : data;
 };
 
 /**
@@ -129,7 +141,7 @@ const renderFilmList = (Films, container, isControl = false) => {
 
     filmComponent.onClick = () => {
       const filmDetailComponent = new FilmDetail(filmComponent.filmData);
-      body.insertAdjacentElement(`beforeend`, filmDetailComponent.render());
+      bodyContainer.insertAdjacentElement(`beforeend`, filmDetailComponent.render());
 
       filmDetailComponent.onClose = (newObject) => {
         const updatedFilm = updateFilm(Films, film, newObject);
@@ -137,7 +149,7 @@ const renderFilmList = (Films, container, isControl = false) => {
         filmComponent.update(updatedFilm);
         filmComponent.render();
         container.replaceChild(filmComponent.element, oldElement);
-        body.removeChild(filmDetailComponent.element);
+        bodyContainer.removeChild(filmDetailComponent.element);
         filmDetailComponent.unrender();
       };
     };
@@ -152,12 +164,30 @@ const renderFilmList = (Films, container, isControl = false) => {
 const setActiveFilter = (container, filterName) => {
   const filters = container.querySelectorAll(`.${Selector.NAVIGATION_ITEM}`);
   filters.forEach((it) => {
+    const currentFilte = it.getAttribute(`href`).split(`#`).pop();
     it.classList.remove(Selector.NAVIGATION_ITEM_ACTIVE);
-    if (it.getAttribute(`href`).split(`#`).pop() === filterName) {
+    if (currentFilte === filterName) {
       it.classList.add(Selector.NAVIGATION_ITEM_ACTIVE);
       filterName = it.getAttribute(`href`).split(`#`).pop();
+      const filmsContainer = document.querySelector(`.${Selector.FILMS}`);
+      const statisticContainer = document.querySelector(`.${Selector.STATISTIC}`);
+      filmsContainer.classList.remove(Selector.HIDDEN);
+      statisticContainer.classList.add(Selector.HIDDEN);
     }
   });
+};
+
+/**
+ * Перерисовывает страницу - отображает блок со статистикой.
+ * @param {object} evt - событие клика.
+ */
+const onClickStat = (evt) => {
+  const filterName = evt.target.getAttribute(`href`).split(`#`).pop();
+  setActiveFilter(filtersContainer, filterName, false);
+  const filmsContainer = document.querySelector(`.${Selector.FILMS}`);
+  const statisticContainer = document.querySelector(`.${Selector.STATISTIC}`);
+  filmsContainer.classList.add(Selector.HIDDEN);
+  statisticContainer.classList.remove(Selector.HIDDEN);
 };
 
 /**
@@ -171,6 +201,14 @@ const init = () => {
   const allFilms = filterFilms(FilmList);
   renderFilmList(allFilms, filmContainer, true);
 
+  const watchedFilms = filterFilms(FilmList, `history`, false);
+  const stat = new Statictics(watchedFilms);
+  stat.render();
+  const staticticContainer = stat.element.querySelector(`.${Selector.STATISTIC_CHART}`);
+  stat.element.classList.add(Selector.HIDDEN);
+  mainContainer.appendChild(stat.element);
+  stat.renderChart(staticticContainer);
+
   renderFilters(FilmList, filtersContainer);
   setActiveFilter(filtersContainer, activeFilter);
 
@@ -179,6 +217,8 @@ const init = () => {
 
   const topCommentedFilms = filterFilms(FilmList, `top-commented`);
   renderFilmList(topCommentedFilms, commentedFilmContainer, false);
+
+  filtersContainer.querySelector(`.${Selector.STAT}`).addEventListener(`click`, onClickStat);
 };
 
 init();
