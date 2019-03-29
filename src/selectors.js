@@ -1,6 +1,7 @@
 export default {
   NAVIGATION: `main-navigation`,
   NAVIGATION_ITEM: `main-navigation__item`,
+  STAT: `main-navigation__item--additional`,
   NAVIGATION_ITEM_ACTIVE: `main-navigation__item--active`,
   FILM_LIST: `films-list`,
   CONTAINER: `films-list__container`,
@@ -10,5 +11,12 @@ export default {
   COMMENTED_MOVIE: `commented-movie`,
   BTN_COMMENTS: `film-card__comments`,
   BTH_CLOSE: `film-details__close-btn`,
-  BODY: `body`
+  BODY: `body`,
+  MAIN: `main`,
+  FILMS: `films`,
+  CONTROL_WATCHLIST: `film-card__controls-item--add-to-watchlist`, CONTROL_WATCHED: `film-card__controls-item--mark-as-watched`,
+  CONTROL_FAVORITE: `film-card__controls-item--favorite`,
+  STATISTIC_CHART: `statistic__chart`,
+  STATISTIC: `statistic`,
+  HIDDEN: `visually-hidden`,
 };
