@@ -1,6 +1,7 @@
 import Component from "./component";
 import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import {ChaartSettings} from "./utils";
 
 export class Statictics extends Component {
   constructor(data) {
@@ -96,8 +97,7 @@ export class Statictics extends Component {
 
   renderChart(statisticCtx) {
     // Обязательно рассчитайте высоту canvas, она зависит от количества элементов диаграммы
-    const BAR_HEIGHT = 50;
-    statisticCtx.height = BAR_HEIGHT * 6;
+    statisticCtx.height = ChaartSettings.BAR_HEIGHT * this._genres.length;
     const myChart = new Chart(statisticCtx, {
       plugins: [ChartDataLabels],
       type: `horizontalBar`,
@@ -105,8 +105,8 @@ export class Statictics extends Component {
         labels: this._genres.map((it) => it[0]),
         datasets: [{
           data: this._genres.map((it) => it[1]),
-          backgroundColor: `#ffe800`,
-          hoverBackgroundColor: `#ffe800`,
+          backgroundColor: ChaartSettings.BACKGROUND_COLOR,
+          hoverBackgroundColor: ChaartSettings.BACKGROUND_COLOR,
           anchor: `start`
         }]
       },
@@ -114,9 +114,9 @@ export class Statictics extends Component {
         plugins: {
           datalabels: {
             font: {
-              size: 20
+              size: ChaartSettings.FONT_SIZE
             },
-            color: `#ffffff`,
+            color: ChaartSettings.COLOR,
             anchor: `start`,
             align: `start`,
             offset: 40,
@@ -125,9 +125,9 @@ export class Statictics extends Component {
         scales: {
           yAxes: [{
             ticks: {
-              fontColor: `#ffffff`,
+              fontColor: ChaartSettings.COLOR,
               padding: 100,
-              fontSize: 20
+              fontSize: ChaartSettings.FONT_SIZE
             },
             gridLines: {
               display: false,

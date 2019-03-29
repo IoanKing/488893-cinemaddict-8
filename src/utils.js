@@ -12,6 +12,13 @@ const Emoji = {
   "grinning": `😀`,
 };
 
+const ChaartSettings = {
+  BAR_HEIGHT: 50,
+  BACKGROUND_COLOR: `#ffe800`,
+  COLOR: `#ffffff`,
+  FONT_SIZE: 20,
+};
+
 /**
  * Генерация случайного числа на заданном интервале.
  * @param {number} min минимальное значение интервала.
@@ -47,4 +54,4 @@ const createElement = (elementTemplate, isMultiplyElement = false) => {
   return (isMultiplyElement) ? newElement : newElement.firstChild;
 };
 
-export {getRandomInt, getRandomElement, getRandomFloat, createElement, DEFAULT_EXTRA_COUNT, MAX_MOVIE_COUNT, Emoji, MAX_RATING};
+export {getRandomInt, getRandomElement, getRandomFloat, createElement, DEFAULT_EXTRA_COUNT, MAX_MOVIE_COUNT, Emoji, MAX_RATING, ChaartSettings};

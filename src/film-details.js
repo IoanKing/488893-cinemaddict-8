@@ -55,11 +55,9 @@ export default class FilmDetails extends Component {
       const [property, value] = pair;
       if (filmDetailMapper[property] && property !== `comment` && property !== `commentEmoji`) {
         filmDetailMapper[property](value);
-      }
-      if (property === `comment`) {
+      } else if (property === `comment`) {
         newComment.text = value;
-      }
-      if (property === `commentEmoji`) {
+      } else if (property === `commentEmoji`) {
         newComment.emoji = value;
       }
     }
