@@ -54,4 +54,19 @@ const createElement = (elementTemplate, isMultiplyElement = false) => {
   return (isMultiplyElement) ? newElement : newElement.firstChild;
 };
 
-export {getRandomInt, getRandomElement, getRandomFloat, createElement, DEFAULT_EXTRA_COUNT, MAX_MOVIE_COUNT, Emoji, MAX_RATING, ChaartSettings};
+/**
+ * Генерация случайной строки
+ * @param {number} n Количество символов в генерируемой строке
+ * @return {string} Сгенерированная строка
+ */
+const getRandomString = (n = 15) => {
+  let s = ``;
+  let abd = `abcdefghijklmnopqrstuvwxyz0123456789=`;
+  let aL = abd.length;
+  while (s.length < n) {
+    s += abd[Math.random() * aL | 0];
+  }
+  return s;
+};
+
+export {getRandomInt, getRandomElement, getRandomFloat, createElement, DEFAULT_EXTRA_COUNT, MAX_MOVIE_COUNT, Emoji, MAX_RATING, ChaartSettings, getRandomString};

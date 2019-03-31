@@ -4,7 +4,18 @@ import Film from "./film";
 import FilmDetail from "./film-details";
 import Filter from "./filter";
 import {Statictics} from "./statistics";
-import {DEFAULT_EXTRA_COUNT, MAX_MOVIE_COUNT} from "./utils";
+import {DEFAULT_EXTRA_COUNT, MAX_MOVIE_COUNT, getRandomString} from "./utils";
+import API from "./api";
+import {
+  onSendData,
+  onLoadData,
+  onConnectionError,
+  successMessage,
+  errorMessage
+} from "./backend";
+
+const AUTHORIZATION = `Basic ${getRandomString()}`;
+const END_POINT = `https://es8-demo-srv.appspot.com/moowle`;
 
 const FilmList = mockdata;
 
@@ -198,6 +209,20 @@ const onClickStat = (evt) => {
  *  Запускает обработкик клика на фильтр.
  */
 const init = () => {
+  const api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
+
+  api.getFilms()
+  .then((films) => {
+    console.log(films);
+    // renderFilmList(films);
+  });
+
+  // const onSuccessLoadData = (data) => {
+  //   console.log(data);
+  // };
+
+  // onLoadData(onSuccessLoadData, onConnectionError);
+
   const allFilms = filterFilms(FilmList);
   renderFilmList(allFilms, filmContainer, true);
 
