@@ -1,49 +1,58 @@
 export default class ModelFilm {
   constructor(data) {
     this.id = data[`id`];
-    this._title = data[`title`] || ``;
-    this._original = data[`original`] || ``;
-    this._totalRating = data[`totalRating`];
-    this._userRating = data[`userRating`];
-    this._director = data[`director`] || ``;
-    this._writers = data[`writers`] || ``;
-    this._authors = data[`authors`] || ``;
-    this._realise = new Date(data[`realise`]);
-    this._duration = Number(data[`duration`]);
-    this._genres = new Set(data[`genres`] || []);
-    this._poster = data[`poster`];
-    this._description = data[`description`];
-    this._comments = new Set(data[`comments`] || []);
-    this._country = data[`country`] || ``;
-    this._age = data[`age`];
 
-    this._isWatched = Boolean(data[`is_watched`]);
-    this._isFavorites = Boolean(data[`is_favorites`]);
-    this._isWatchList = Boolean(data[`is_watchList`]);
+    this.actors = new Set(data[`film_info`].actors || []);
+    this.age = data[`film_info`].age_rating;
+    this.original = data[`film_info`].alternative_title || ``;
+    this.description = data[`film_info`].description || ``;
+    this.director = data[`film_info`].director || ``;
+    this.genres = new Set(data[`film_info`].genre || []);
+    this.poster = data[`film_info`].poster;
+    this.release = new Date(data[`film_info`].release.date);
+    this.country = data[`film_info`].release.release_country;
+    this.duration = Number(data[`film_info`].runtime);
+    this.title = data[`film_info`].title || ``;
+    this.totalRating = data[`film_info`].total_rating;
+    this.writers = new Set(data[`film_info`].writers || []);
+
+    this.comments = data[`comments`] || [];
+
+    this.userRating = data[`user_details`].personal_rating;
+    this.isWatched = Boolean(data[`user_details`].already_watched);
+    this.isFavorites = Boolean(data[`user_details`].favorite);
+    this.isWatchList = Boolean(data[`user_details`].watchlist);
   }
 
   toRAW() {
-    return {
-      'id': this._id,
-      'title': this._title,
-      'original': this._original,
-      'totalRating': this._totalRating,
-      'userRating': this._userRating,
-      'director': this._director,
-      'writers': this._writers,
-      'authors': this._authors,
-      'realise': this._realise,
-      'duration': this._duration,
-      'genres': this._genres,
-      'poster': this._poster,
-      'description': this._description,
-      'comments': [...this._comments],
-      'country': this._country,
-      'age': this._age,
-      'is_watched': this._isWatched,
-      'is_favorites': this._isFavorites,
-      'is_watchList': this._isWatchList,
+    const object = {
+      'id': this.id,
+      'film_info': {
+        'actors': Array.from(this.actors),
+        'age_rating': this.age,
+        'alternative_title': this.original,
+        'description': this.description,
+        'director': this.director,
+        'genre': Array.from(this.genres),
+        'poster': this.poster,
+        'release': {
+          'date': this.release,
+          'release_country': this.country,
+        },
+        'runtime': this.duration,
+        'title': this.title,
+        'total_rating': this.totalRating,
+        'writers': Array.from(this.writers),
+      },
+      'user_details': {
+        'personal_rating': this.userRating,
+        'already_watched': this.isWatched,
+        'favorite': this.isFavorites,
+        'watchlist': this.isWatchList,
+      },
+      'comments': Array.from(this.comments),
     };
+    return object;
   }
 
   static parseFilm(data) {

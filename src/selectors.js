@@ -19,4 +19,9 @@ export default {
   STATISTIC_CHART: `statistic__chart`,
   STATISTIC: `statistic`,
   HIDDEN: `visually-hidden`,
+  WATCHLIST: `watchlist`,
+  FAVORITE: `favorite`,
+  WATCHED: `watched`,
+  RATING_INPUT: `film-details__user-rating-input`,
+  COMMENT_IPUT: `film-details__comment-input`
 };

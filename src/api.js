@@ -26,14 +26,14 @@ const API = class {
   }
 
   getFilms() {
-    return this._load({url: `movie`})
+    return this._load({url: `movies`})
       .then(toJSON)
       .then(ModelFilm.parseFilms);
   }
 
   createFilm({film}) {
     return this._load({
-      url: `movie`,
+      url: `movies`,
       method: Method.POST,
       body: JSON.stringify(film),
       headers: new Headers({'Content-Type': `application/json`})
@@ -44,7 +44,7 @@ const API = class {
 
   updateFilm({id, data}) {
     return this._load({
-      url: `movie/${id}`,
+      url: `movies/${id}`,
       method: Method.PUT,
       body: JSON.stringify(data),
       headers: new Headers({'Content-Type': `application/json`})
@@ -59,12 +59,11 @@ const API = class {
 
   _load({url, method = Method.GET, body = null, headers = new Headers()}) {
     headers.append(`Authorization`, this._authorization);
-    headers.append(`Access-Control-Allow-Origin`, `*`);
-    headers.append(`Access-Control-Allow-Credentials`, `true`);
 
     return fetch(`${this._endPoint}/${url}`, {method, body, headers, withCredentials: true})
       .then(checkStatus)
       .catch((err) => {
+        // eslint-disable-next-line no-console
         console.error(`fetch error: ${err}`);
         throw err;
       });

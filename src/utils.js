@@ -4,7 +4,9 @@ const MAX_COUNT = 30;
 const MAX_RATING = 9;
 
 const DEFAULT_EXTRA_COUNT = 2;
-const MAX_MOVIE_COUNT = 10;
+const MAX_MOVIE_COUNT = 5;
+
+const ENTER_KEYCODE = 13;
 
 const Emoji = {
   "sleeping": `😴`,
@@ -69,4 +71,4 @@ const getRandomString = (n = 15) => {
   return s;
 };
 
-export {getRandomInt, getRandomElement, getRandomFloat, createElement, DEFAULT_EXTRA_COUNT, MAX_MOVIE_COUNT, Emoji, MAX_RATING, ChaartSettings, getRandomString};
+export {getRandomInt, getRandomElement, getRandomFloat, createElement, DEFAULT_EXTRA_COUNT, MAX_MOVIE_COUNT, Emoji, MAX_RATING, ChaartSettings, getRandomString, ENTER_KEYCODE};
