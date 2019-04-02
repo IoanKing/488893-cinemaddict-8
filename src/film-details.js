@@ -145,6 +145,11 @@ export default class FilmDetails extends Component {
     return this._element;
   }
 
+  shake() {
+    const ANIMATION_TIMEOUT = 600;
+    this._element.style.animation = `shake ${ANIMATION_TIMEOUT / 1000}s`;
+  }
+
   get formTemplate() {
     return `
     <form class="film-details__inner" action="" method="get">
@@ -310,7 +315,7 @@ export default class FilmDetails extends Component {
       .addEventListener(`click`, this._onMarkAsWatched);
     this._element.querySelector(`#${Selector.FAVORITE}`)
       .addEventListener(`click`, this._onMarkAsFavorite);
-    this._element.querySelector(`.${Selector.COMMENT_IPUT}`)
+    this._element.querySelector(`.${Selector.COMMENT_INPUT}`)
       .addEventListener(`keypress`, this._onAddComment);
     this._element.querySelectorAll(`.${Selector.RATING_INPUT}`)
       .forEach((it) => {
@@ -327,7 +332,7 @@ export default class FilmDetails extends Component {
       .removeEventListener(`click`, this._onMarkAsWatched);
     this._element.querySelector(`#${Selector.FAVORITE}`)
       .removeEventListener(`click`, this._onMarkAsFavorite);
-    this._element.querySelector(`.${Selector.COMMENT_IPUT}`)
+    this._element.querySelector(`.${Selector.COMMENT_INPUT}`)
       .removeEventListener(`keypress`, this._onAddComment);
     this._element.querySelectorAll(`.${Selector.RATING_INPUT}`)
       .forEach((it) => {
