@@ -1,12 +1,15 @@
 import Selector from "./selectors";
-import mockdata from "./mock";
 import Film from "./film";
 import FilmDetail from "./film-details";
 import Filter from "./filter";
 import {Statictics} from "./statistics";
-import {DEFAULT_EXTRA_COUNT, MAX_MOVIE_COUNT} from "./utils";
+import {DEFAULT_EXTRA_COUNT, MAX_MOVIE_COUNT, getRandomString, createElement} from "./utils";
+import API from "./api";
 
-const FilmList = mockdata;
+const AUTHORIZATION = `Basic ${getRandomString()}`;
+const END_POINT = `https://es8-demo-srv.appspot.com/moowle`;
+
+const api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
 
 const filtersContainer = document.querySelector(`.${Selector.NAVIGATION}`);
 const filmContainer = document.querySelector(`.${Selector.CONTAINER}`);
@@ -16,19 +19,39 @@ const bodyContainer = document.querySelector(`${Selector.BODY}`);
 const mainContainer = document.querySelector(`${Selector.MAIN}`);
 let activeFilter = `all`;
 
-/**
- * Обновляет струкутру объекта - меняет старый объект на новый.
- * @param {object} films - коллекция обьектов
- * @param {object} filmToUpdate - изменяемый обьект
- * @param {object} newFilm - новый обьект (изменяемые данные)
- * @return {object} обновленный элемент.
- */
-const updateFilm = (films, filmToUpdate, newFilm) => {
-  const index = films.findIndex((it) => it === filmToUpdate);
-  films[index] = Object.assign({}, filmToUpdate, newFilm);
-  FilmList[index] = Object.assign({}, filmToUpdate, newFilm);
-  return films[index];
-};
+const STAT_TEMPLATE = `<a href="#stats" class="main-navigation__item main-navigation__item--additional">Stats</a>`;
+
+const ERROR_MESSAGE = `Something went wrong while loading movies. Check your connection or try again later`;
+const LOAD_MESSAGE = `<h2>Loading movies...</h2>`;
+
+const newStyle = `<style type="text/css">
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-5px);
+  }
+
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(5px);
+  }
+}
+.shake {
+  animation: shake 0.6s;
+}
+</style>`;
+
+document.querySelector(`head`).insertAdjacentElement(`beforeend`, createElement(newStyle));
 
 /**
  * Фильтрация коллекции обьектов.
@@ -37,7 +60,7 @@ const updateFilm = (films, filmToUpdate, newFilm) => {
  * @param {bool} isLimited - Ограничение на количество элементов.
  * @return {object} - отфильтрованная коллекция.
  */
-const filterFilms = (films, filtername, isLimited = true) => {
+const filterFilms = (films, filtername) => {
   let data = {};
   switch (filtername) {
     case `favorites`:
@@ -62,16 +85,17 @@ const filterFilms = (films, filtername, isLimited = true) => {
       data = Object.values(films);
       break;
   }
-  return (isLimited) ? data.slice(0, Math.min(MAX_MOVIE_COUNT, data.length)) : data;
+  return data.slice(0, Math.min(MAX_MOVIE_COUNT, data.length));
 };
 
 /**
  * Отрисовка фильтров на странице.
  * @param {object} Films - коллекция обьектов.
- * @param {object} container - DOM элемент, в котором будет выполняться отрисовка.
+ * @param {object} container - DOM элемент, в котором будет выполняться
  */
 const renderFilters = (Films, container) => {
-  const Filters = [
+  container.innerHTML = ``;
+  const getFilters = [
     {
       title: `Favorites`,
       slug: `favorites`,
@@ -98,59 +122,168 @@ const renderFilters = (Films, container) => {
     },
   ];
 
-  for (const filter of Filters) {
+  for (const filter of getFilters) {
     const filterComponent = new Filter(filter);
 
     filterComponent.onFilter = (evt) => {
       const filterName = evt.target.getAttribute(`href`).split(`#`).pop();
-      const filteredFilms = filterFilms(FilmList, filterName);
-      renderFilmList(filteredFilms, filmContainer, true);
+      api.getFilms()
+      .then((films) => {
+        renderFilmList(films, filmContainer, filterName, true);
+      })
+      .catch((error) => {
+        mainContainer.innerText = `${ERROR_MESSAGE}
+        ${error}`;
+      });
       setActiveFilter(filtersContainer, filterName);
     };
 
     container.insertAdjacentElement(`afterbegin`, filterComponent.render());
   }
+
+  container.insertAdjacentElement(`beforeend`, createElement(STAT_TEMPLATE));
+  container.querySelector(`.${Selector.STAT}`).addEventListener(`click`, onClickStat);
 };
 
 /**
  * Отрисовка карточек фильмов на странице.
- * @param {object} Films - коллекция обьектов для торисовки.
+ * @param {object} films - коллекция обьектов для торисовки.
  * @param {object} container - DOM элемент, в котором будет выполняться отрисовка.
+ * @param {bool} filter - текущий фильтр.
  * @param {bool} isControl - признак отрисовки контролов для обьекта.
  */
-const renderFilmList = (Films, container, isControl = false) => {
+const renderFilmList = (films, container, filter = `all`, isControl = false) => {
   container.innerHTML = ``;
+  const filteredFilms = filterFilms(films, filter, false);
 
-  for (const film of Films) {
+  for (const film of filteredFilms) {
+
     const filmComponent = new Film(film);
     filmComponent.isShowDetail = isControl;
+
+    const update = (movie) => {
+      api.updateFilm({id: movie.id, data: movie.toRAW()})
+      .then(() => {
+        renderFilters(films, filtersContainer);
+        renderFilmList(films, filmContainer, filter, true);
+        setActiveFilter(filtersContainer, filter, false);
+      });
+    };
 
     container.appendChild(filmComponent.render());
 
     filmComponent.onAddToWatchList = (bool) => {
       film.isWatchList = bool;
+      update(film);
     };
 
     filmComponent.onMarkAsWatched = (bool) => {
       film.isWatched = bool;
+      update(film);
     };
 
     filmComponent.onMarkAsFavorite = (bool) => {
       film.isFavorites = bool;
+      update(film);
     };
 
     filmComponent.onClick = () => {
       const filmDetailComponent = new FilmDetail(filmComponent.filmData);
       bodyContainer.insertAdjacentElement(`beforeend`, filmDetailComponent.render());
 
-      filmDetailComponent.onClose = (newObject) => {
-        const updatedFilm = updateFilm(Films, film, newObject);
-        const oldElement = filmComponent.element;
-        filmComponent.update(updatedFilm);
-        filmComponent.render();
-        container.replaceChild(filmComponent.element, oldElement);
-        bodyContainer.removeChild(filmDetailComponent.element);
+      const updateDetail = (movie) => {
+        block();
+        api.updateFilm({id: movie.id, data: movie.toRAW()})
+          .then(() => {
+            const replacedElement = filmDetailComponent.element;
+            bodyContainer.replaceChild(filmDetailComponent.render(), replacedElement);
+          })
+          .catch(() => {
+            filmDetailComponent.shake();
+            unblock();
+          });
+      };
+
+      const block = () => {
+        const containerComment = filmDetailComponent.element.querySelector(`.${Selector.COMMENT_INPUT}`);
+        const votingContainers = filmDetailComponent.element.querySelectorAll(`.${Selector.RATING_INPUT}`);
+        containerComment.setAttribute(`disabled`, `disabled`);
+        votingContainers.forEach((it) => {
+          it.setAttribute(`disabled`, `disabled`);
+        });
+      };
+
+      const unblock = () => {
+        const containerComment = filmDetailComponent.element.querySelector(`.${Selector.COMMENT_INPUT}`);
+        const votingContainers = filmDetailComponent.element.querySelectorAll(`.${Selector.RATING_INPUT}`);
+        containerComment.removeAttribute(`disabled`, `disabled`);
+        votingContainers.forEach((it) => {
+          it.removeAttribute(`disabled`, `disabled`);
+        });
+      };
+
+      filmDetailComponent.onAddToWatchList = (bool) => {
+        film.isWatchList = bool;
+        updateDetail(film);
+      };
+
+      filmDetailComponent.onMarkAsWatched = (bool) => {
+        film.isWatched = bool;
+        updateDetail(film);
+      };
+
+      filmDetailComponent.onMarkAsFavorite = (bool) => {
+        film.isFavorites = bool;
+        updateDetail(film);
+      };
+
+      filmDetailComponent.onRatingUpdate = (newData) => {
+        film.userRating = newData;
+        block();
+        const votingFilelds = filmDetailComponent.element.querySelectorAll(`.${Selector.RATING_LABEL}`);
+        votingFilelds.forEach((it) => {
+          it.style.backgroundColor = `gray`;
+        });
+        api.updateFilm({id: film.id, data: film.toRAW()})
+          .then(() => {
+            unblock();
+            const replacedElement = filmDetailComponent.element;
+            bodyContainer.replaceChild(filmDetailComponent.render(), replacedElement);
+          })
+          .catch(() => {
+            filmDetailComponent.shake();
+            votingFilelds.forEach((it) => {
+              it.style.backgroundColor = `red`;
+            });
+            unblock();
+          });
+      };
+
+      filmDetailComponent.onAddComment = (newData) => {
+        film.comments = newData;
+        block();
+        const commentFileld = filmDetailComponent.element.querySelector(`.${Selector.COMMENT_INPUT}`);
+        commentFileld.style.border = `solid 1px #979797`;
+        commentFileld.style.padding = `15px 10px`;
+        api.updateFilm({id: film.id, data: film.toRAW()})
+          .then(() => {
+            unblock();
+            const replacedElement = filmDetailComponent.element;
+            bodyContainer.replaceChild(filmDetailComponent.render(), replacedElement);
+          })
+          .catch(() => {
+            filmDetailComponent.shake();
+            commentFileld.style.border = `solid 6px red`;
+            commentFileld.style.padding = `10px 10px`;
+            unblock();
+          });
+      };
+
+      filmDetailComponent.onClose = () => {
         filmDetailComponent.unrender();
+        renderFilters(films, filtersContainer);
+        renderFilmList(films, filmContainer, filter, true);
+        setActiveFilter(filtersContainer, filter, false);
       };
     };
   }
@@ -164,15 +297,20 @@ const renderFilmList = (Films, container, isControl = false) => {
 const setActiveFilter = (container, filterName) => {
   const filters = container.querySelectorAll(`.${Selector.NAVIGATION_ITEM}`);
   filters.forEach((it) => {
-    const currentFilte = it.getAttribute(`href`).split(`#`).pop();
-    it.classList.remove(Selector.NAVIGATION_ITEM_ACTIVE);
-    if (currentFilte === filterName) {
-      it.classList.add(Selector.NAVIGATION_ITEM_ACTIVE);
-      filterName = it.getAttribute(`href`).split(`#`).pop();
-      const filmsContainer = document.querySelector(`.${Selector.FILMS}`);
-      const statisticContainer = document.querySelector(`.${Selector.STATISTIC}`);
+    if (it.getAttribute(`href`)) {
+      activeFilter = it.getAttribute(`href`).split(`#`).pop();
+      it.classList.remove(Selector.NAVIGATION_ITEM_ACTIVE);
+      if (activeFilter === filterName) {
+        it.classList.add(Selector.NAVIGATION_ITEM_ACTIVE);
+        filterName = it.getAttribute(`href`).split(`#`).pop();
+      }
+      const main = document.querySelector(`.${Selector.MAIN}`);
+      const filmsContainer = main.querySelector(`.${Selector.FILMS}`);
+      const statisticContainer = main.querySelector(`.${Selector.STATISTIC}`);
       filmsContainer.classList.remove(Selector.HIDDEN);
-      statisticContainer.classList.add(Selector.HIDDEN);
+      if (statisticContainer) {
+        main.removeChild(statisticContainer);
+      }
     }
   });
 };
@@ -184,10 +322,26 @@ const setActiveFilter = (container, filterName) => {
 const onClickStat = (evt) => {
   const filterName = evt.target.getAttribute(`href`).split(`#`).pop();
   setActiveFilter(filtersContainer, filterName, false);
+
+  renderStatistic();
+
   const filmsContainer = document.querySelector(`.${Selector.FILMS}`);
-  const statisticContainer = document.querySelector(`.${Selector.STATISTIC}`);
   filmsContainer.classList.add(Selector.HIDDEN);
-  statisticContainer.classList.remove(Selector.HIDDEN);
+};
+
+const renderStatistic = () => {
+  api.getFilms()
+    .then((films) => {
+      const stat = new Statictics(films);
+      stat.render();
+      const staticticContainer = stat.element.querySelector(`.${Selector.STATISTIC_CHART}`);
+      mainContainer.appendChild(stat.element);
+      stat.renderChart(staticticContainer);
+    })
+    .catch((error) => {
+      mainContainer.innerText = `${ERROR_MESSAGE}
+      ${error}`;
+    });
 };
 
 /**
@@ -198,27 +352,22 @@ const onClickStat = (evt) => {
  *  Запускает обработкик клика на фильтр.
  */
 const init = () => {
-  const allFilms = filterFilms(FilmList);
-  renderFilmList(allFilms, filmContainer, true);
+  filmContainer.innerHTML = `${LOAD_MESSAGE}`;
+  api.getFilms()
+    .then((films) => {
+      renderFilmList(films, filmContainer, activeFilter, true);
 
-  const watchedFilms = filterFilms(FilmList, `history`, false);
-  const stat = new Statictics(watchedFilms);
-  stat.render();
-  const staticticContainer = stat.element.querySelector(`.${Selector.STATISTIC_CHART}`);
-  stat.element.classList.add(Selector.HIDDEN);
-  mainContainer.appendChild(stat.element);
-  stat.renderChart(staticticContainer);
+      renderFilters(films, filtersContainer);
+      setActiveFilter(filtersContainer, activeFilter);
 
-  renderFilters(FilmList, filtersContainer);
-  setActiveFilter(filtersContainer, activeFilter);
+      renderFilmList(films, topFilmContainer, `top-rated`, false);
 
-  const topRatedFilms = filterFilms(FilmList, `top-rated`);
-  renderFilmList(topRatedFilms, topFilmContainer, false);
-
-  const topCommentedFilms = filterFilms(FilmList, `top-commented`);
-  renderFilmList(topCommentedFilms, commentedFilmContainer, false);
-
-  filtersContainer.querySelector(`.${Selector.STAT}`).addEventListener(`click`, onClickStat);
+      renderFilmList(films, commentedFilmContainer, `top-commented`, false);
+    })
+    .catch((error) => {
+      mainContainer.innerText = `${ERROR_MESSAGE}
+      ${error}`;
+    });
 };
 
 init();

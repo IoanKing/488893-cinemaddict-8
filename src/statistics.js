@@ -6,9 +6,10 @@ import {ChaartSettings} from "./utils";
 export class Statictics extends Component {
   constructor(data) {
     super();
-    this._genres = this._countGenres(data);
-    this._watches = data.length;
-    this._duration = this._totalDuration(data);
+    const filteredData = Object.values(data).filter((it) => it.isWatched);
+    this._genres = this._countGenres(filteredData);
+    this._watches = filteredData.length;
+    this._duration = this._totalDuration(filteredData);
     this._rank = this._setRank();
   }
 

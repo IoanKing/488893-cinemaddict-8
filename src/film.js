@@ -5,13 +5,14 @@ import moment from "moment";
 export default class Film extends Component {
   constructor(collection) {
     super();
+    this._id = collection.id;
     this._title = collection.title;
     this._original = collection.original;
     this._totalRating = collection.totalRating;
     this._userRating = collection.userRating;
     this._director = collection.director;
     this._writers = collection.writers;
-    this._authors = collection.authors;
+    this._actors = collection.actors;
     this._realise = collection.realise;
     this._duration = collection.duration;
     this._genres = collection.genres;
@@ -82,13 +83,14 @@ export default class Film extends Component {
 
   get filmData() {
     return {
+      id: this._id,
       title: this._title,
       original: this._original,
       totalRating: this._totalRating,
       userRating: this._userRating,
       director: this._director,
       writers: this._writers,
-      authors: this._authors,
+      actors: this._actors,
       realise: this._realise,
       duration: this._duration,
       genres: this._genres,
@@ -101,6 +103,10 @@ export default class Film extends Component {
       isFavorites: this._isFavorites,
       isWatchList: this._isWatchList,
     };
+  }
+
+  get id() {
+    return this._id;
   }
 
   get template() {
