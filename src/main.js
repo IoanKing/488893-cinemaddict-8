@@ -162,6 +162,7 @@ const renderFilmList = (films, container, filter = `all`) => {
   for (const film of filteredFilms) {
 
     const filmComponent = new Film(film);
+    let popup = null;
 
     const update = (movie) => {
       api.updateFilm({id: movie.id, data: movie.toRAW()})
@@ -190,8 +191,12 @@ const renderFilmList = (films, container, filter = `all`) => {
     };
 
     filmComponent.onClick = () => {
+      if (popup) {
+        bodyContainer.removeChild(popup);
+      }
       const filmDetailComponent = new FilmDetail(filmComponent.filmData);
-      bodyContainer.insertAdjacentElement(`beforeend`, filmDetailComponent.render());
+      popup = filmDetailComponent.render();
+      bodyContainer.appendChild(popup);
 
       const updateDetail = (movie) => {
         block();
