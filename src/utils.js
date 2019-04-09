@@ -8,13 +8,15 @@ const MAX_MOVIE_COUNT = 5;
 
 const ENTER_KEYCODE = 13;
 
+const DEBOUNCE_INTERVAL = 600;
+
 const Emoji = {
   "sleeping": `😴`,
   "neutral-face": `😐`,
   "grinning": `😀`,
 };
 
-const ChaartSettings = {
+const ChartSettings = {
   BAR_HEIGHT: 50,
   BACKGROUND_COLOR: `#ffe800`,
   COLOR: `#ffffff`,
@@ -71,4 +73,35 @@ const getRandomString = (n = 15) => {
   return s;
 };
 
-export {getRandomInt, getRandomElement, getRandomFloat, createElement, DEFAULT_EXTRA_COUNT, MAX_MOVIE_COUNT, Emoji, MAX_RATING, ChaartSettings, getRandomString, ENTER_KEYCODE};
+/**
+ * debounce
+ *
+ * @param { function } cb Callback to be executed after debounce
+ * @param { int } wait Time to wait before function execution
+ * @return {function(...[*])}
+ */
+const debounce = (cb, wait = DEBOUNCE_INTERVAL) => {
+  let timeout = null;
+
+  return () => {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+    timeout = setTimeout(cb(), wait);
+  };
+};
+
+export {
+  getRandomInt,
+  getRandomElement,
+  getRandomFloat,
+  createElement,
+  DEFAULT_EXTRA_COUNT,
+  MAX_MOVIE_COUNT,
+  Emoji,
+  MAX_RATING,
+  ChartSettings,
+  getRandomString,
+  ENTER_KEYCODE,
+  debounce,
+};

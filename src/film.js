@@ -31,7 +31,7 @@ export default class Film extends Component {
     this._onMarkAsWatched = this._onMarkAsWatched.bind(this);
     this._onMarkAsFavorite = this._onMarkAsFavorite.bind(this);
     this._status = {
-      isControl: false
+      isControl: true
     };
   }
 

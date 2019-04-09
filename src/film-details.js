@@ -3,6 +3,8 @@ import Component from "./component";
 import {Emoji, MAX_RATING, ENTER_KEYCODE} from "./utils";
 import moment from "moment";
 
+const ANIMATION_TIMEOUT = 600;
+
 export default class FilmDetails extends Component {
   constructor(collection) {
     super();
@@ -146,7 +148,6 @@ export default class FilmDetails extends Component {
   }
 
   shake() {
-    const ANIMATION_TIMEOUT = 600;
     this._element.style.animation = `shake ${ANIMATION_TIMEOUT / 1000}s`;
   }
 

@@ -25,6 +25,6 @@
   "dependencies": {
     "chart.js": "2.8.0",
     "chartjs-plugin-datalabels": "0.6.0",
-    "moment": "^2.24.0"
+    "moment": "2.24.0"
   }
 }

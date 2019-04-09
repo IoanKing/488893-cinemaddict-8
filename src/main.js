@@ -2,12 +2,20 @@ import Selector from "./selectors";
 import Film from "./film";
 import FilmDetail from "./film-details";
 import Filter from "./filter";
-import {Statictics} from "./statistics";
-import {DEFAULT_EXTRA_COUNT, MAX_MOVIE_COUNT, getRandomString, createElement} from "./utils";
+import {Statistics} from "./statistics";
+import {
+  DEFAULT_EXTRA_COUNT,
+  MAX_MOVIE_COUNT,
+  getRandomString,
+  createElement
+} from "./utils";
 import API from "./api";
 
 const AUTHORIZATION = `Basic ${getRandomString()}`;
 const END_POINT = `https://es8-demo-srv.appspot.com/moowle`;
+const STAT_TEMPLATE = `<a href="#stats" class="main-navigation__item main-navigation__item--additional">Stats</a>`;
+const ERROR_MESSAGE = `Something went wrong while loading movies. Check your connection or try again later`;
+const LOAD_MESSAGE = `<h2>Loading movies...</h2>`;
 
 const api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
 
@@ -18,11 +26,6 @@ const commentedFilmContainer = document.querySelector(`#${Selector.COMMENTED_MOV
 const bodyContainer = document.querySelector(`${Selector.BODY}`);
 const mainContainer = document.querySelector(`${Selector.MAIN}`);
 let activeFilter = `all`;
-
-const STAT_TEMPLATE = `<a href="#stats" class="main-navigation__item main-navigation__item--additional">Stats</a>`;
-
-const ERROR_MESSAGE = `Something went wrong while loading movies. Check your connection or try again later`;
-const LOAD_MESSAGE = `<h2>Loading movies...</h2>`;
 
 const newStyle = `<style type="text/css">
 @keyframes shake {
@@ -56,13 +59,13 @@ document.querySelector(`head`).insertAdjacentElement(`beforeend`, createElement(
 /**
  * Фильтрация коллекции обьектов.
  * @param {object} films - коллекция обьектов.
- * @param {string} filtername - наименование фильтра.
+ * @param {string} filterName - наименование фильтра.
  * @param {bool} isLimited - Ограничение на количество элементов.
  * @return {object} - отфильтрованная коллекция.
  */
-const filterFilms = (films, filtername) => {
+const filterFilms = (films, filterName) => {
   let data = {};
-  switch (filtername) {
+  switch (filterName) {
     case `favorites`:
       data = Object.values(films).filter((it) => it.isFavorites);
       break;
@@ -95,7 +98,7 @@ const filterFilms = (films, filtername) => {
  */
 const renderFilters = (Films, container) => {
   container.innerHTML = ``;
-  const getFilters = [
+  const filters = [
     {
       title: `Favorites`,
       slug: `favorites`,
@@ -122,14 +125,14 @@ const renderFilters = (Films, container) => {
     },
   ];
 
-  for (const filter of getFilters) {
+  for (const filter of filters) {
     const filterComponent = new Filter(filter);
 
     filterComponent.onFilter = (evt) => {
       const filterName = evt.target.getAttribute(`href`).split(`#`).pop();
       api.getFilms()
       .then((films) => {
-        renderFilmList(films, filmContainer, filterName, true);
+        renderFilmList(films, filmContainer, filterName);
       })
       .catch((error) => {
         mainContainer.innerText = `${ERROR_MESSAGE}
@@ -152,21 +155,20 @@ const renderFilters = (Films, container) => {
  * @param {bool} filter - текущий фильтр.
  * @param {bool} isControl - признак отрисовки контролов для обьекта.
  */
-const renderFilmList = (films, container, filter = `all`, isControl = false) => {
+const renderFilmList = (films, container, filter = `all`) => {
   container.innerHTML = ``;
-  const filteredFilms = filterFilms(films, filter, false);
+  const filteredFilms = filterFilms(films, filter);
 
   for (const film of filteredFilms) {
 
     const filmComponent = new Film(film);
-    filmComponent.isShowDetail = isControl;
 
     const update = (movie) => {
       api.updateFilm({id: movie.id, data: movie.toRAW()})
       .then(() => {
         renderFilters(films, filtersContainer);
-        renderFilmList(films, filmContainer, filter, true);
-        setActiveFilter(filtersContainer, filter, false);
+        renderFilmList(films, filmContainer, filter);
+        setActiveFilter(filtersContainer, filter);
       });
     };
 
@@ -216,9 +218,9 @@ const renderFilmList = (films, container, filter = `all`, isControl = false) => 
       const unblock = () => {
         const containerComment = filmDetailComponent.element.querySelector(`.${Selector.COMMENT_INPUT}`);
         const votingContainers = filmDetailComponent.element.querySelectorAll(`.${Selector.RATING_INPUT}`);
-        containerComment.removeAttribute(`disabled`, `disabled`);
+        containerComment.removeAttribute(`disabled`);
         votingContainers.forEach((it) => {
-          it.removeAttribute(`disabled`, `disabled`);
+          it.removeAttribute(`disabled`);
         });
       };
 
@@ -262,9 +264,9 @@ const renderFilmList = (films, container, filter = `all`, isControl = false) => 
       filmDetailComponent.onAddComment = (newData) => {
         film.comments = newData;
         block();
-        const commentFileld = filmDetailComponent.element.querySelector(`.${Selector.COMMENT_INPUT}`);
-        commentFileld.style.border = `solid 1px #979797`;
-        commentFileld.style.padding = `15px 10px`;
+        const commentField = filmDetailComponent.element.querySelector(`.${Selector.COMMENT_INPUT}`);
+        commentField.style.border = `solid 1px #979797`;
+        commentField.style.padding = `15px 10px`;
         api.updateFilm({id: film.id, data: film.toRAW()})
           .then(() => {
             unblock();
@@ -273,8 +275,8 @@ const renderFilmList = (films, container, filter = `all`, isControl = false) => 
           })
           .catch(() => {
             filmDetailComponent.shake();
-            commentFileld.style.border = `solid 6px red`;
-            commentFileld.style.padding = `10px 10px`;
+            commentField.style.border = `solid 6px red`;
+            commentField.style.padding = `10px 10px`;
             unblock();
           });
       };
@@ -283,7 +285,7 @@ const renderFilmList = (films, container, filter = `all`, isControl = false) => 
         filmDetailComponent.unrender();
         renderFilters(films, filtersContainer);
         renderFilmList(films, filmContainer, filter, true);
-        setActiveFilter(filtersContainer, filter, false);
+        setActiveFilter(filtersContainer, filter);
       };
     };
   }
@@ -321,7 +323,7 @@ const setActiveFilter = (container, filterName) => {
  */
 const onClickStat = (evt) => {
   const filterName = evt.target.getAttribute(`href`).split(`#`).pop();
-  setActiveFilter(filtersContainer, filterName, false);
+  setActiveFilter(filtersContainer, filterName);
 
   renderStatistic();
 
@@ -332,7 +334,7 @@ const onClickStat = (evt) => {
 const renderStatistic = () => {
   api.getFilms()
     .then((films) => {
-      const stat = new Statictics(films);
+      const stat = new Statistics(films);
       stat.render();
       const staticticContainer = stat.element.querySelector(`.${Selector.STATISTIC_CHART}`);
       mainContainer.appendChild(stat.element);
@@ -355,14 +357,14 @@ const init = () => {
   filmContainer.innerHTML = `${LOAD_MESSAGE}`;
   api.getFilms()
     .then((films) => {
-      renderFilmList(films, filmContainer, activeFilter, true);
+      renderFilmList(films, filmContainer, activeFilter);
 
       renderFilters(films, filtersContainer);
       setActiveFilter(filtersContainer, activeFilter);
 
-      renderFilmList(films, topFilmContainer, `top-rated`, false);
+      renderFilmList(films, topFilmContainer, `top-rated`);
 
-      renderFilmList(films, commentedFilmContainer, `top-commented`, false);
+      renderFilmList(films, commentedFilmContainer, `top-commented`);
     })
     .catch((error) => {
       mainContainer.innerText = `${ERROR_MESSAGE}

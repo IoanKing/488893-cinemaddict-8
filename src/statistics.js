@@ -1,9 +1,9 @@
 import Component from "./component";
 import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import {ChaartSettings} from "./utils";
+import {ChartSettings} from "./utils";
 
-export class Statictics extends Component {
+export class Statistics extends Component {
   constructor(data) {
     super();
     const filteredData = Object.values(data).filter((it) => it.isWatched);
@@ -98,7 +98,7 @@ export class Statictics extends Component {
 
   renderChart(statisticCtx) {
     // Обязательно рассчитайте высоту canvas, она зависит от количества элементов диаграммы
-    statisticCtx.height = ChaartSettings.BAR_HEIGHT * this._genres.length;
+    statisticCtx.height = ChartSettings.BAR_HEIGHT * this._genres.length;
     const myChart = new Chart(statisticCtx, {
       plugins: [ChartDataLabels],
       type: `horizontalBar`,
@@ -106,18 +106,18 @@ export class Statictics extends Component {
         labels: this._genres.map((it) => it[0]),
         datasets: [{
           data: this._genres.map((it) => it[1]),
-          backgroundColor: ChaartSettings.BACKGROUND_COLOR,
-          hoverBackgroundColor: ChaartSettings.BACKGROUND_COLOR,
+          backgroundColor: ChartSettings.BACKGROUND_COLOR,
+          hoverBackgroundColor: ChartSettings.BACKGROUND_COLOR,
           anchor: `start`
         }]
       },
       options: {
         plugins: {
-          datalabels: {
+          dataLabels: {
             font: {
-              size: ChaartSettings.FONT_SIZE
+              size: ChartSettings.FONT_SIZE
             },
-            color: ChaartSettings.COLOR,
+            color: ChartSettings.COLOR,
             anchor: `start`,
             align: `start`,
             offset: 40,
@@ -126,9 +126,9 @@ export class Statictics extends Component {
         scales: {
           yAxes: [{
             ticks: {
-              fontColor: ChaartSettings.COLOR,
+              fontColor: ChartSettings.COLOR,
               padding: 100,
-              fontSize: ChaartSettings.FONT_SIZE
+              fontSize: ChartSettings.FONT_SIZE
             },
             gridLines: {
               display: false,

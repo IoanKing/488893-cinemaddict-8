@@ -24,5 +24,6 @@ export default {
   WATCHED: `watched`,
   RATING_INPUT: `film-details__user-rating-input`,
   COMMENT_INPUT: `film-details__comment-input`,
-  RATING_LABEL: `film-details__user-rating-label`
+  RATING_LABEL: `film-details__user-rating-label`,
+  SEARCH: `search__field`,
 };
