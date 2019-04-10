@@ -1,95 +1,40 @@
-import Selector from "./selectors";
-import Film from "./film";
-import FilmDetail from "./film-details";
-import Filter from "./filter";
-import {Statistics} from "./statistics";
-import {
-  DEFAULT_EXTRA_COUNT,
-  MAX_MOVIE_COUNT,
-  getRandomString,
-  createElement
-} from "./utils";
-import API from "./api";
+import Film from "./components/film";
+import FilmDetail from "./components/film-details";
+import Filter from "./components/filter";
+import {Statistics} from "./components/statistics";
 
-const AUTHORIZATION = `Basic ${getRandomString()}`;
-const END_POINT = `https://es8-demo-srv.appspot.com/moowle`;
-const STAT_TEMPLATE = `<a href="#stats" class="main-navigation__item main-navigation__item--additional">Stats</a>`;
-const ERROR_MESSAGE = `Something went wrong while loading movies. Check your connection or try again later`;
-const LOAD_MESSAGE = `<h2>Loading movies...</h2>`;
+import tamplateStyle from "./templates/template-animations-style";
+import navigationStat from "./templates/template-navigation-stat";
 
-const api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
+import API from "./modules/api";
+import Selector from "./modules/selectors";
+import {filterFilms, getFilters, setActiveFilter} from "./modules/filtering";
+import {getRandomString, createElement, FiltersName} from "./modules/utils";
 
-const filtersContainer = document.querySelector(`.${Selector.NAVIGATION}`);
-const filmContainer = document.querySelector(`.${Selector.CONTAINER}`);
-const topFilmContainer = document.querySelector(`#${Selector.TOP_MOVIE}`);
-const commentedFilmContainer = document.querySelector(`#${Selector.COMMENTED_MOVIE}`);
-const bodyContainer = document.querySelector(`${Selector.BODY}`);
-const mainContainer = document.querySelector(`${Selector.MAIN}`);
-let activeFilter = `all`;
-
-const newStyle = `<style type="text/css">
-@keyframes shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-
-  10%,
-  30%,
-  50%,
-  70%,
-  90% {
-    transform: translateX(-5px);
-  }
-
-  20%,
-  40%,
-  60%,
-  80% {
-    transform: translateX(5px);
-  }
-}
-.shake {
-  animation: shake 0.6s;
-}
-</style>`;
-
-document.querySelector(`head`).insertAdjacentElement(`beforeend`, createElement(newStyle));
-
-/**
- * Фильтрация коллекции обьектов.
- * @param {object} films - коллекция обьектов.
- * @param {string} filterName - наименование фильтра.
- * @param {bool} isLimited - Ограничение на количество элементов.
- * @return {object} - отфильтрованная коллекция.
- */
-const filterFilms = (films, filterName) => {
-  let data = {};
-  switch (filterName) {
-    case `favorites`:
-      data = Object.values(films).filter((it) => it.isFavorites);
-      break;
-    case `watchlist`:
-      data = Object.values(films).filter((it) => it.isWatchList);
-      break;
-    case `history`:
-      data = Object.values(films).filter((it) => it.isWatched);
-      break;
-    case `all`:
-      data = Object.values(films);
-      break;
-    case `top-rated`:
-      data = Object.values(films).sort((a, b) => b.totalRating - a.totalRating).slice(0, DEFAULT_EXTRA_COUNT);
-      break;
-    case `top-commented`:
-      data = Object.values(films).sort((a, b) => b.comments.length - a.comments.length).slice(0, DEFAULT_EXTRA_COUNT);
-      break;
-    default:
-      data = Object.values(films);
-      break;
-  }
-  return data.slice(0, Math.min(MAX_MOVIE_COUNT, data.length));
+const messages = {
+  ERROR: `Something went wrong while loading movies. Check your connection or try again later`,
+  LOAD: `<h2>Loading movies...</h2>`,
 };
+
+const elementDom = {
+  FILTERS: document.querySelector(`.${Selector.NAVIGATION}`),
+  FILMS: document.querySelector(`.${Selector.CONTAINER}`),
+  TOP_RATING: document.querySelector(`#${Selector.TOP_MOVIE}`),
+  TOP_COMMENTED: document.querySelector(`#${Selector.COMMENTED_MOVIE}`),
+  MAIN: document.querySelector(`${Selector.MAIN}`),
+  BODY: document.querySelector(`${Selector.BODY}`),
+  FOOTER_STATISTIC: document.querySelector(`${Selector.FOOTER_STATISTIC}`),
+  PROFILE_RATING: document.querySelector(`${Selector.PROFILE_RATING}`),
+  HEAD: document.querySelector(`${Selector.HEAD}`)
+};
+
+const apiSetting = {
+  AUTHORIZATION: `Basic ${getRandomString()}`,
+  END_POINT: `https://es8-demo-srv.appspot.com/moowle`
+};
+
+const api = new API({endPoint: apiSetting.END_POINT, authorization: apiSetting.AUTHORIZATION});
+let activeFilter = `all`;
 
 /**
  * Отрисовка фильтров на странице.
@@ -98,32 +43,7 @@ const filterFilms = (films, filterName) => {
  */
 const renderFilters = (Films, container) => {
   container.innerHTML = ``;
-  const filters = [
-    {
-      title: `Favorites`,
-      slug: `favorites`,
-      isWatched: false,
-      count: Object.values(Films).reduce((sum, current) => +sum + +current.isFavorites, 0),
-    },
-    {
-      title: `History`,
-      slug: `history`,
-      isWatched: false,
-      count: Object.values(Films).reduce((sum, current) => +sum + +current.isWatched, 0),
-    },
-    {
-      title: `Watchlist`,
-      slug: `watchlist`,
-      isWatched: false,
-      count: Object.values(Films).reduce((sum, current) => +sum + +current.isWatchList, 0),
-    },
-    {
-      title: `All movies`,
-      slug: `all`,
-      isWatched: false,
-      count: Films.length,
-    },
-  ];
+  const filters = getFilters(Films);
 
   for (const filter of filters) {
     const filterComponent = new Filter(filter);
@@ -132,19 +52,19 @@ const renderFilters = (Films, container) => {
       const filterName = evt.target.getAttribute(`href`).split(`#`).pop();
       api.getFilms()
       .then((films) => {
-        renderFilmList(films, filmContainer, filterName);
+        renderFilmList(films, elementDom.FILMS, filterName);
       })
       .catch((error) => {
-        mainContainer.innerText = `${ERROR_MESSAGE}
+        elementDom.MAIN.innerText = `${messages.ERROR}
         ${error}`;
       });
-      setActiveFilter(filtersContainer, filterName);
+      activeFilter = setActiveFilter(elementDom.FILTERS, filterName);
     };
 
     container.insertAdjacentElement(`afterbegin`, filterComponent.render());
   }
 
-  container.insertAdjacentElement(`beforeend`, createElement(STAT_TEMPLATE));
+  container.insertAdjacentElement(`beforeend`, createElement(navigationStat()));
   container.querySelector(`.${Selector.STAT}`).addEventListener(`click`, onClickStat);
 };
 
@@ -164,16 +84,22 @@ const renderFilmList = (films, container, filter = `all`) => {
     const filmComponent = new Film(film);
     let popup = null;
 
+    if (filter === FiltersName.TOP_RATED || filter === FiltersName.TOP_COMMENTED) {
+      filmComponent.isShowDetail = false;
+    }
+
+    const renderedFilm = filmComponent.render();
+
+    container.appendChild(renderedFilm);
+
     const update = (movie) => {
       api.updateFilm({id: movie.id, data: movie.toRAW()})
       .then(() => {
-        renderFilters(films, filtersContainer);
-        renderFilmList(films, filmContainer, filter);
-        setActiveFilter(filtersContainer, filter);
+        renderFilters(films, elementDom.FILTERS);
+        renderFilmList(films, elementDom.FILMS, filter);
+        activeFilter = setActiveFilter(elementDom.FILTERS, filter);
       });
     };
-
-    container.appendChild(filmComponent.render());
 
     filmComponent.onAddToWatchList = (bool) => {
       film.isWatchList = bool;
@@ -192,18 +118,18 @@ const renderFilmList = (films, container, filter = `all`) => {
 
     filmComponent.onClick = () => {
       if (popup) {
-        bodyContainer.removeChild(popup);
+        elementDom.BODY.removeChild(popup);
       }
       const filmDetailComponent = new FilmDetail(filmComponent.filmData);
       popup = filmDetailComponent.render();
-      bodyContainer.appendChild(popup);
+      elementDom.BODY.appendChild(popup);
 
       const updateDetail = (movie) => {
         block();
         api.updateFilm({id: movie.id, data: movie.toRAW()})
           .then(() => {
             const replacedElement = filmDetailComponent.element;
-            bodyContainer.replaceChild(filmDetailComponent.render(), replacedElement);
+            elementDom.BODY.replaceChild(filmDetailComponent.render(), replacedElement);
           })
           .catch(() => {
             filmDetailComponent.shake();
@@ -255,7 +181,7 @@ const renderFilmList = (films, container, filter = `all`) => {
           .then(() => {
             unblock();
             const replacedElement = filmDetailComponent.element;
-            bodyContainer.replaceChild(filmDetailComponent.render(), replacedElement);
+            elementDom.BODY.replaceChild(filmDetailComponent.render(), replacedElement);
           })
           .catch(() => {
             filmDetailComponent.shake();
@@ -276,7 +202,7 @@ const renderFilmList = (films, container, filter = `all`) => {
           .then(() => {
             unblock();
             const replacedElement = filmDetailComponent.element;
-            bodyContainer.replaceChild(filmDetailComponent.render(), replacedElement);
+            elementDom.BODY.replaceChild(filmDetailComponent.render(), replacedElement);
           })
           .catch(() => {
             filmDetailComponent.shake();
@@ -288,38 +214,12 @@ const renderFilmList = (films, container, filter = `all`) => {
 
       filmDetailComponent.onClose = () => {
         filmDetailComponent.unrender();
-        renderFilters(films, filtersContainer);
-        renderFilmList(films, filmContainer, filter, true);
-        setActiveFilter(filtersContainer, filter);
+        renderFilters(films, elementDom.FILTERS);
+        renderFilmList(films, elementDom.FILMS, filter, true);
+        activeFilter = setActiveFilter(elementDom.FILTERS, filter);
       };
     };
   }
-};
-
-/**
- * установка класса Активности на фильтр.
- * @param {object} container - DOM элемент, со списком фильтров.
- * @param {string} filterName - наименование фильтра.
- */
-const setActiveFilter = (container, filterName) => {
-  const filters = container.querySelectorAll(`.${Selector.NAVIGATION_ITEM}`);
-  filters.forEach((it) => {
-    if (it.getAttribute(`href`)) {
-      activeFilter = it.getAttribute(`href`).split(`#`).pop();
-      it.classList.remove(Selector.NAVIGATION_ITEM_ACTIVE);
-      if (activeFilter === filterName) {
-        it.classList.add(Selector.NAVIGATION_ITEM_ACTIVE);
-        filterName = it.getAttribute(`href`).split(`#`).pop();
-      }
-      const main = document.querySelector(`.${Selector.MAIN}`);
-      const filmsContainer = main.querySelector(`.${Selector.FILMS}`);
-      const statisticContainer = main.querySelector(`.${Selector.STATISTIC}`);
-      filmsContainer.classList.remove(Selector.HIDDEN);
-      if (statisticContainer) {
-        main.removeChild(statisticContainer);
-      }
-    }
-  });
 };
 
 /**
@@ -328,7 +228,7 @@ const setActiveFilter = (container, filterName) => {
  */
 const onClickStat = (evt) => {
   const filterName = evt.target.getAttribute(`href`).split(`#`).pop();
-  setActiveFilter(filtersContainer, filterName);
+  activeFilter = setActiveFilter(elementDom.FILTERS, filterName);
 
   renderStatistic();
 
@@ -336,17 +236,20 @@ const onClickStat = (evt) => {
   filmsContainer.classList.add(Selector.HIDDEN);
 };
 
+/**
+ * Рендерит страницу с статистикой пользователя.
+ */
 const renderStatistic = () => {
   api.getFilms()
     .then((films) => {
       const stat = new Statistics(films);
       stat.render();
       const staticticContainer = stat.element.querySelector(`.${Selector.STATISTIC_CHART}`);
-      mainContainer.appendChild(stat.element);
+      elementDom.MAIN.appendChild(stat.element);
       stat.renderChart(staticticContainer);
     })
     .catch((error) => {
-      mainContainer.innerText = `${ERROR_MESSAGE}
+      elementDom.MAIN.innerText = `${messages.ERROR}
       ${error}`;
     });
 };
@@ -359,20 +262,21 @@ const renderStatistic = () => {
  *  Запускает обработкик клика на фильтр.
  */
 const init = () => {
-  filmContainer.innerHTML = `${LOAD_MESSAGE}`;
+  elementDom.HEAD.insertAdjacentElement(`beforeend`, createElement(tamplateStyle()));
+  elementDom.FILMS.innerHTML = `${messages.LOAD}`;
   api.getFilms()
     .then((films) => {
-      renderFilmList(films, filmContainer, activeFilter);
+      renderFilmList(films, elementDom.FILMS, activeFilter);
 
-      renderFilters(films, filtersContainer);
-      setActiveFilter(filtersContainer, activeFilter);
+      renderFilters(films, elementDom.FILTERS);
+      activeFilter = setActiveFilter(elementDom.FILTERS, activeFilter);
 
-      renderFilmList(films, topFilmContainer, `top-rated`);
+      renderFilmList(films, elementDom.TOP_RATING, FiltersName.TOP_RATED);
 
-      renderFilmList(films, commentedFilmContainer, `top-commented`);
+      renderFilmList(films, elementDom.TOP_COMMENTED, FiltersName.TOP_COMMENTED);
     })
     .catch((error) => {
-      mainContainer.innerText = `${ERROR_MESSAGE}
+      elementDom.MAIN.innerText = `${messages.ERROR}
       ${error}`;
     });
 };

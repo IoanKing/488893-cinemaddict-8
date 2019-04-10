@@ -1,6 +1,6 @@
-import Selector from "./selectors";
+import Selector from "../modules/selectors";
 import Component from "./component";
-import moment from "moment";
+import templateFilm from "../templates/template-film";
 
 export default class Film extends Component {
   constructor(collection) {
@@ -15,7 +15,7 @@ export default class Film extends Component {
     this._actors = collection.actors;
     this._realise = collection.realise;
     this._duration = collection.duration;
-    this._genres = collection.genres;
+    this._genres = (collection.genres) ? collection.genres : [``];
     this._poster = collection.poster;
     this._description = collection.description;
     this._comments = collection.comments;
@@ -81,6 +81,10 @@ export default class Film extends Component {
     this._onFavorite = fn;
   }
 
+  set isShowDetail(isControl = true) {
+    this._status.isControl = isControl;
+  }
+
   get filmData() {
     return {
       id: this._id,
@@ -109,30 +113,23 @@ export default class Film extends Component {
     return this._id;
   }
 
-  get template() {
-    return `
-    <article class="film-card ${(this._status.isControl) ? `` : `film-card--no-controls`}">
-    <h3 class="film-card__title">${this._title}</h3>
-    <p class="film-card__rating">${this._totalRating}</p>
-    <p class="film-card__info">
-      <span class="film-card__realise">${moment(this._realise).format(`YYYY`)}</span>
-      <span class="film-card__duration">${(this._duration) >= 60 ? `${Math.floor(this._duration / 60)}h ${this._duration % 60}m` : `${this._duration}m`}</span>
-      <span class="film-card__genre">${this._genres.values().next().value}</span>
-    </p>
-    <img src="${this._poster}" alt="" class="film-card__poster">
-    ${(this._status.isControl) ? `<p class="film-card__description">${this._description}</p>` : ``}
-    <button class="film-card__comments">${this._comments.length} comment${(this._comments.length > 1) ? `s` : ``}</button>
-
-    ${(this._status.isControl) ? `<form class="film-card__controls">
-      <button class="film-card__controls-item button film-card__controls-item--add-to-watchlist">Add to watchlist</button>
-      <button class="film-card__controls-item button film-card__controls-item--mark-as-watched">Mark as watched</button>
-      <button class="film-card__controls-item button film-card__controls-item--favorite">Mark as favorite</button>
-    </form>` : ``}
-  </article>`.trim();
+  get collection() {
+    return {
+      isControl: this._status.isControl,
+      title: this._title,
+      rating: this._totalRating,
+      userRating: this._userRating,
+      realise: this._realise,
+      duration: this._duration,
+      genres: this._genres,
+      poster: this._poster,
+      description: this._description,
+      comments: this._comments,
+    };
   }
 
-  set isShowDetail(isControl = true) {
-    this._status.isControl = isControl;
+  get template() {
+    return templateFilm(this.collection);
   }
 
   addListener() {

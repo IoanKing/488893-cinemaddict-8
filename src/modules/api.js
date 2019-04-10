@@ -1,4 +1,4 @@
-import ModelFilm from "./model-film";
+import ModelFilm from "../components/model-film";
 
 const Method = {
   GET: `GET`,

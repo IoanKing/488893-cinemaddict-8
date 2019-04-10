@@ -1,7 +1,7 @@
 import Component from "./component";
 import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import {ChartSettings} from "./utils";
+import {ChartSettings} from "../modules/utils";
 
 export class Statistics extends Component {
   constructor(data) {

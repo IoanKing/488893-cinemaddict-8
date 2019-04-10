@@ -13,6 +13,7 @@ export default {
   BTH_CLOSE: `film-details__close-btn`,
   BODY: `body`,
   MAIN: `main`,
+  HEAD: `head`,
   FILMS: `films`,
   CONTROL_WATCHLIST: `film-card__controls-item--add-to-watchlist`, CONTROL_WATCHED: `film-card__controls-item--mark-as-watched`,
   CONTROL_FAVORITE: `film-card__controls-item--favorite`,
@@ -26,4 +27,6 @@ export default {
   COMMENT_INPUT: `film-details__comment-input`,
   RATING_LABEL: `film-details__user-rating-label`,
   SEARCH: `search__field`,
+  FOOTER_STATISTIC: `footer__statistics`,
+  PROFILE_RATING: `profile__rating`,
 };
