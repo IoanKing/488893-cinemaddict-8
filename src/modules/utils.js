@@ -23,6 +23,16 @@ const ChartSettings = {
   FONT_SIZE: 20,
 };
 
+const FiltersName = {
+  FAVORITES: `favorites`,
+  WATCHLIST: `watchlist`,
+  HISTORY: `history`,
+  ALL: `all`,
+  SEARCH: `search`,
+  TOP_RATED: `top-rated`,
+  TOP_COMMENTED: `top-commented`,
+};
+
 /**
  * Генерация случайного числа на заданном интервале.
  * @param {number} min минимальное значение интервала.
@@ -104,4 +114,5 @@ export {
   getRandomString,
   ENTER_KEYCODE,
   debounce,
+  FiltersName
 };
