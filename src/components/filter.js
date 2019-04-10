@@ -1,3 +1,4 @@
+import Selector from "../modules/selectors";
 import Component from "./component";
 
 export default class Filter extends Component {
@@ -15,7 +16,7 @@ export default class Filter extends Component {
 
   _onFilterClick(evt) {
     evt.preventDefault();
-    if (typeof this._onFilter === `function`) {
+    if (evt.target.classList.contains(Selector.NAVIGATION_ITEM) && typeof this._onFilter === `function`) {
       this._onFilter(evt);
     }
   }

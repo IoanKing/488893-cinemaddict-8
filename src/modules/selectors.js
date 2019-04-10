@@ -26,7 +26,7 @@ export default {
   RATING_INPUT: `film-details__user-rating-input`,
   COMMENT_INPUT: `film-details__comment-input`,
   RATING_LABEL: `film-details__user-rating-label`,
-  SEARCH: `search__field`,
+  SEARCH: `search`,
   FOOTER_STATISTIC: `footer__statistics`,
   PROFILE_RATING: `profile__rating`,
 };

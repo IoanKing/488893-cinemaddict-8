@@ -5,10 +5,10 @@ import {DEFAULT_EXTRA_COUNT, FiltersName} from "./utils";
  * Фильтрация коллекции обьектов.
  * @param {object} films - коллекция обьектов.
  * @param {string} filterName - наименование фильтра.
- * @param {bool} isLimited - Ограничение на количество элементов.
+ * @param {string} text - Поисковая фраза.
  * @return {object} - отфильтрованная коллекция.
  */
-const filterFilms = (films, filterName) => {
+const filterFilms = (films, filterName, text = ``) => {
   let data = {};
   switch (filterName) {
     case FiltersName.FAVORITES:
@@ -22,6 +22,10 @@ const filterFilms = (films, filterName) => {
       break;
     case FiltersName.ALL:
       data = Object.values(films);
+      break;
+    case FiltersName.SEARCH:
+      const regMatch = new RegExp(`${text.trim()}`, `i`);
+      data = Object.values(films).filter((it) => (regMatch.test(it.title) || regMatch.test(it.original)));
       break;
     case FiltersName.TOP_RATED:
       data = Object.values(films).sort((a, b) => b.totalRating - a.totalRating).slice(0, DEFAULT_EXTRA_COUNT);

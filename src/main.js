@@ -2,12 +2,14 @@ import Film from "./components/film";
 import FilmDetail from "./components/film-details";
 import Filter from "./components/filter";
 import {Statistics} from "./components/statistics";
+import Search from "./components/search";
 
 import tamplateStyle from "./templates/template-animations-style";
 import navigationStat from "./templates/template-navigation-stat";
 
 import API from "./modules/api";
 import Selector from "./modules/selectors";
+import debounce from "./modules/debounce";
 import {filterFilms, getFilters, setActiveFilter} from "./modules/filtering";
 import {getRandomString, createElement, FiltersName} from "./modules/utils";
 
@@ -25,7 +27,8 @@ const elementDom = {
   BODY: document.querySelector(`${Selector.BODY}`),
   FOOTER_STATISTIC: document.querySelector(`${Selector.FOOTER_STATISTIC}`),
   PROFILE_RATING: document.querySelector(`${Selector.PROFILE_RATING}`),
-  HEAD: document.querySelector(`${Selector.HEAD}`)
+  HEAD: document.querySelector(`${Selector.HEAD}`),
+  SEARCH: document.querySelector(`.${Selector.SEARCH}`),
 };
 
 const apiSetting = {
@@ -73,11 +76,12 @@ const renderFilters = (Films, container) => {
  * @param {object} films - коллекция обьектов для торисовки.
  * @param {object} container - DOM элемент, в котором будет выполняться отрисовка.
  * @param {bool} filter - текущий фильтр.
+ * @param {string} searchPrase - поисковая фраза
  * @param {bool} isControl - признак отрисовки контролов для обьекта.
  */
-const renderFilmList = (films, container, filter = `all`) => {
+const renderFilmList = (films, container, filter = `all`, searchPrase = ``) => {
   container.innerHTML = ``;
-  const filteredFilms = filterFilms(films, filter);
+  const filteredFilms = filterFilms(films, filter, searchPrase);
 
   for (const film of filteredFilms) {
 
@@ -274,6 +278,14 @@ const init = () => {
       renderFilmList(films, elementDom.TOP_RATING, FiltersName.TOP_RATED);
 
       renderFilmList(films, elementDom.TOP_COMMENTED, FiltersName.TOP_COMMENTED);
+
+      const searchComponent = new Search();
+      elementDom.SEARCH.innerHTML = ``;
+      elementDom.SEARCH.insertAdjacentElement(`beforeend`, searchComponent.render());
+
+      searchComponent.onChange = () => {
+        debounce(renderFilmList(films, elementDom.FILMS, FiltersName.SEARCH, searchComponent.element.value));
+      };
     })
     .catch((error) => {
       elementDom.MAIN.innerText = `${messages.ERROR}
