@@ -118,6 +118,7 @@ export default class Film extends Component {
       isControl: this._status.isControl,
       title: this._title,
       rating: this._totalRating,
+      userRating: this._user,
       realise: this._realise,
       duration: this._duration,
       genres: this._genres,

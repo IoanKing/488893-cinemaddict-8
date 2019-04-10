@@ -139,7 +139,7 @@ export default (data) => {
               ${ (new Array(MAX_RATING)
                 .fill()
                 .map((value, i) => (`
-                  <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="${i + 1}" id="rating-${i + 1}" ${ Math.round(data._userRating) === i + 1 ? `checked` : ``}>
+                  <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="${i + 1}" id="rating-${i + 1}" ${ Math.round(data.userRating) === i + 1 ? `checked` : ``}>
                   <label class="film-details__user-rating-label" for="rating-${i + 1}">${i + 1}</label>
                 `).trim())).join(``) }
               </div>
