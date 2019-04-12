@@ -38,6 +38,7 @@ const apiSetting = {
 
 const api = new API({endPoint: apiSetting.END_POINT, authorization: apiSetting.AUTHORIZATION});
 let activeFilter = `all`;
+let searchElement = null;
 
 /**
  * Отрисовка фильтров на странице.
@@ -238,6 +239,8 @@ const onClickStat = (evt) => {
 
   const filmsContainer = document.querySelector(`.${Selector.FILMS}`);
   filmsContainer.classList.add(Selector.HIDDEN);
+
+  searchElement.value = ``;
 };
 
 /**
@@ -256,6 +259,23 @@ const renderStatistic = () => {
       elementDom.MAIN.innerText = `${messages.ERROR}
       ${error}`;
     });
+};
+
+/**
+ * Отрисовка и выполнение поиска
+ * @param {*} collection - Коллекция обьектов
+ * @return {object} - DOM элемент поиска
+ */
+const renderSearch = (collection) => {
+  const searchComponent = new Search();
+  elementDom.SEARCH.innerHTML = ``;
+  elementDom.SEARCH.insertAdjacentElement(`beforeend`, searchComponent.render());
+
+  searchComponent.onChange = () => {
+    debounce(renderFilmList(collection, elementDom.FILMS, FiltersName.SEARCH, searchComponent.element.value));
+  };
+
+  return searchComponent.element;
 };
 
 /**
@@ -279,13 +299,7 @@ const init = () => {
 
       renderFilmList(films, elementDom.TOP_COMMENTED, FiltersName.TOP_COMMENTED);
 
-      const searchComponent = new Search();
-      elementDom.SEARCH.innerHTML = ``;
-      elementDom.SEARCH.insertAdjacentElement(`beforeend`, searchComponent.render());
-
-      searchComponent.onChange = () => {
-        debounce(renderFilmList(films, elementDom.FILMS, FiltersName.SEARCH, searchComponent.element.value));
-      };
+      searchElement = renderSearch(films);
     })
     .catch((error) => {
       elementDom.MAIN.innerText = `${messages.ERROR}

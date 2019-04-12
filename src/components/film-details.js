@@ -1,6 +1,6 @@
 import Selector from "../modules/selectors";
 import Component from "./component";
-import {ENTER_KEYCODE} from "../modules/utils";
+import {ENTER_KEYCODE, ESC_KEYCODE} from "../modules/utils";
 import templateFilmDetail from "../templates/template-film-details";
 
 const ANIMATION_TIMEOUT = 600;
@@ -35,6 +35,7 @@ export default class FilmDetails extends Component {
     this._onMarkAsFavorite = this._onMarkAsFavorite.bind(this);
     this._onRatingUpdate = this._onRatingUpdate.bind(this);
     this._onAddComment = this._onAddComment.bind(this);
+    this._onClosePressEsc = this._onClosePressEsc.bind(this);
 
     this._isCreate = false;
   }
@@ -42,6 +43,13 @@ export default class FilmDetails extends Component {
   _onCloseButtonClick(evt) {
     evt.preventDefault();
     if (typeof this._onClose === `function`) {
+      this._onClose();
+    }
+  }
+
+  _onClosePressEsc(evt) {
+    evt.preventDefault();
+    if (evt.keyCode === ESC_KEYCODE && typeof this._onClose === `function`) {
       this._onClose();
     }
   }
@@ -190,6 +198,7 @@ export default class FilmDetails extends Component {
     this._isCreate = true;
     this._element.querySelector(`.${Selector.BTH_CLOSE}`)
       .addEventListener(`click`, this._onCloseButtonClick);
+    document.addEventListener(`keydown`, this._onClosePressEsc);
     this._element.querySelector(`#${Selector.WATCHLIST}`)
       .addEventListener(`click`, this._onAddToWatchList);
     this._element.querySelector(`#${Selector.WATCHED}`)
@@ -207,6 +216,7 @@ export default class FilmDetails extends Component {
   removeListener() {
     this._element.querySelector(`.${Selector.BTH_CLOSE}`)
       .removeEventListener(`click`, this._onCloseButtonClick);
+    document.removeEventListener(`keydown`, this._onClosePressEsc);
     this._element.querySelector(`#${Selector.WATCHLIST}`)
       .removeEventListener(`click`, this._onAddToWatchList);
     this._element.querySelector(`#${Selector.WATCHED}`)
