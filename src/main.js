@@ -4,14 +4,17 @@ import Filter from "./components/filter";
 import {Statistics} from "./components/statistics";
 import Search from "./components/search";
 
+import Settings from "./modules/settings";
+
 import tamplateStyle from "./templates/template-animations-style";
 import navigationStat from "./templates/template-navigation-stat";
+import templateComments from "./templates/template-comment";
 
 import API from "./modules/api";
 import Selector from "./modules/selectors";
 import debounce from "./modules/debounce";
 import {filterFilms, getFilters, setActiveFilter} from "./modules/filtering";
-import {getRandomString, createElement, FiltersName, MOVIE_SHOW_COUNT} from "./modules/utils";
+import {getRandomString, createElement, FiltersName} from "./modules/utils";
 
 const messages = {
   ERROR: `Something went wrong while loading movies. Check your connection or try again later`,
@@ -37,7 +40,7 @@ const apiSetting = {
 };
 
 const api = new API({endPoint: apiSetting.END_POINT, authorization: apiSetting.AUTHORIZATION});
-let currentShowCount = MOVIE_SHOW_COUNT;
+let currentShowCount = Settings.MOVIE_SHOW_COUNT;
 let activeFilter = `all`;
 let searchElement = null;
 
@@ -134,8 +137,7 @@ const renderFilmList = (films, container, filter = `all`, searchPrase = ``) => {
         block();
         api.updateFilm({id: movie.id, data: movie.toRAW()})
           .then(() => {
-            const replacedElement = filmDetailComponent.element;
-            elementDom.BODY.replaceChild(filmDetailComponent.render(), replacedElement);
+            unblock();
           })
           .catch(() => {
             filmDetailComponent.shake();
@@ -146,18 +148,18 @@ const renderFilmList = (films, container, filter = `all`, searchPrase = ``) => {
       const block = () => {
         const containerComment = filmDetailComponent.element.querySelector(`.${Selector.COMMENT_INPUT}`);
         const votingContainers = filmDetailComponent.element.querySelectorAll(`.${Selector.RATING_INPUT}`);
-        containerComment.setAttribute(`disabled`, `disabled`);
+        containerComment.disabled = true;
         votingContainers.forEach((it) => {
-          it.setAttribute(`disabled`, `disabled`);
+          it.disabled = true;
         });
       };
 
       const unblock = () => {
         const containerComment = filmDetailComponent.element.querySelector(`.${Selector.COMMENT_INPUT}`);
         const votingContainers = filmDetailComponent.element.querySelectorAll(`.${Selector.RATING_INPUT}`);
-        containerComment.removeAttribute(`disabled`);
+        containerComment.disabled = false;
         votingContainers.forEach((it) => {
-          it.removeAttribute(`disabled`);
+          it.disabled = false;
         });
       };
 
@@ -178,16 +180,20 @@ const renderFilmList = (films, container, filter = `all`, searchPrase = ``) => {
 
       filmDetailComponent.onRatingUpdate = (newData) => {
         film.userRating = newData;
-        block();
         const votingFilelds = filmDetailComponent.element.querySelectorAll(`.${Selector.RATING_LABEL}`);
+        const userRating = filmDetailComponent.element.querySelector(`.${Selector.USER_RATING}`);
+        block();
+        userRating.innerHTML = ``;
         votingFilelds.forEach((it) => {
           it.style.backgroundColor = `gray`;
         });
         api.updateFilm({id: film.id, data: film.toRAW()})
           .then(() => {
             unblock();
-            const replacedElement = filmDetailComponent.element;
-            elementDom.BODY.replaceChild(filmDetailComponent.render(), replacedElement);
+            votingFilelds.forEach((it) => {
+              it.removeAttribute(`style`);
+            });
+            userRating.innerHTML = `Your rate ${film.userRating}`;
           })
           .catch(() => {
             filmDetailComponent.shake();
@@ -198,22 +204,29 @@ const renderFilmList = (films, container, filter = `all`, searchPrase = ``) => {
           });
       };
 
-      filmDetailComponent.onAddComment = (newData) => {
+      filmDetailComponent.onChangeComment = (newData) => {
         film.comments = newData;
         block();
         const commentField = filmDetailComponent.element.querySelector(`.${Selector.COMMENT_INPUT}`);
+        const commentList = filmDetailComponent.element.querySelector(`.${Selector.COMMENTS}`);
+        const commentEmoji = filmDetailComponent.element.querySelector(`.${Selector.COMMENT_EMOJI}`);
         commentField.style.border = `solid 1px #979797`;
         commentField.style.padding = `15px 10px`;
+        commentField.style.backgroundColor = `gray`;
         api.updateFilm({id: film.id, data: film.toRAW()})
           .then(() => {
+            commentList.innerHTML = ``;
+            commentList.insertAdjacentHTML(`beforeend`, templateComments(film.comments));
+            commentField.removeAttribute(`style`);
+            commentField.value = ``;
+            commentEmoji.checked = false;
             unblock();
-            const replacedElement = filmDetailComponent.element;
-            elementDom.BODY.replaceChild(filmDetailComponent.render(), replacedElement);
           })
           .catch(() => {
             filmDetailComponent.shake();
             commentField.style.border = `solid 6px red`;
             commentField.style.padding = `10px 10px`;
+            commentField.style.backgroundColor = `#f6f6f6`;
             unblock();
           });
       };

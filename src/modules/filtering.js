@@ -1,5 +1,6 @@
 import Selector from "./selectors";
-import {DEFAULT_EXTRA_COUNT, FiltersName} from "./utils";
+import Settings from "./settings";
+import {FiltersName} from "./utils";
 
 /**
  * Фильтрация коллекции обьектов.
@@ -28,10 +29,10 @@ const filterFilms = (films, filterName, text = ``) => {
       data = Object.values(films).filter((it) => (regMatch.test(it.title) || regMatch.test(it.original)));
       break;
     case FiltersName.TOP_RATED:
-      data = Object.values(films).sort((a, b) => b.totalRating - a.totalRating).slice(0, DEFAULT_EXTRA_COUNT);
+      data = Object.values(films).sort((a, b) => b.totalRating - a.totalRating).slice(0, Settings.DEFAULT_EXTRA_COUNT);
       break;
     case FiltersName.TOP_COMMENTED:
-      data = Object.values(films).sort((a, b) => b.comments.length - a.comments.length).slice(0, DEFAULT_EXTRA_COUNT);
+      data = Object.values(films).sort((a, b) => b.comments.length - a.comments.length).slice(0, Settings.DEFAULT_EXTRA_COUNT);
       break;
     default:
       data = Object.values(films);

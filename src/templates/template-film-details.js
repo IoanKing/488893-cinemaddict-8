@@ -1,46 +1,12 @@
 import moment from "moment";
-import {Emoji, MAX_RATING} from "../modules/utils";
+import Settings from "../modules/settings";
+import templateComments from "../templates/template-comment";
 
 export default (data) => {
+  let hasAuthorComment = false;
+  hasAuthorComment = Object.values(data.comments).find((it) => it.author === Settings.USER_NAME);
 
-  const comments = Array.from(data.comments).map((comment) => {
-    const nowDate = new Date();
-    const timeAgo = moment.duration(moment(nowDate).diff(comment.date));
-    let timeCount = ``;
-    let timeText = ``;
-
-    if (timeAgo.get(`years`) > 0) {
-      timeCount = timeAgo.get(`years`);
-      timeText = `years`;
-    } else if (timeAgo.get(`months`) > 0) {
-      timeCount = timeAgo.get(`months`);
-      timeText = `months`;
-    } else if (timeAgo.get(`days`) > 0) {
-      timeCount = timeAgo.get(`days`);
-      timeText = `days`;
-    } else if (timeAgo.get(`hours`) > 0) {
-      timeCount = timeAgo.get(`hours`);
-      timeText = `hours`;
-    } else if (timeAgo.get(`minutes`) > 0) {
-      timeCount = timeAgo.get(`minutes`);
-      timeText = `minutes`;
-    } else if (timeAgo.get(`seconds`) > 0) {
-      timeCount = timeAgo.get(`seconds`);
-      timeText = `seconds`;
-    }
-
-    return `
-    <li class="film-details__comment">
-      <span class="film-details__comment-emoji">${Emoji[comment.emotion]}</span>
-      <div>
-        <p class="film-details__comment-text">${comment.comment}</p>
-        <p class="film-details__comment-info">
-          <span class="film-details__comment-author">${comment.author}</span>
-          <span class="film-details__comment-day">${timeCount} ${timeText} ago</span>
-        </p>
-      </div>
-    </li>`.trim();
-  }).join(``);
+  const comments = templateComments(data.comments);
 
   return `
     <form class="film-details__inner" action="" method="get">
@@ -148,8 +114,8 @@ export default (data) => {
         </section>
 
         <section class="film-details__user-rating-wrap">
-          <div class="film-details__user-rating-controls">
-            <span class="film-details__watched-status film-details__watched-status--active">Already watched</span>
+          <div class="film-details__user-rating-controls ${(hasAuthorComment) ? `` : `visually-hidden`}">
+            <span class="film-details__watched-status ${(data.isWatched) ? `film-details__watched-status--active` : ``}">${(data.isWatched) ? `Already watched` : `will watch`}</span>
             <button class="film-details__watched-reset" type="button">undo</button>
           </div>
 
@@ -164,7 +130,7 @@ export default (data) => {
               <p class="film-details__user-rating-feelings">How you feel it?</p>
 
               <div class="film-details__user-rating-score">
-              ${ (new Array(MAX_RATING)
+              ${ (new Array(Settings.MAX_RATING)
                 .fill()
                 .map((value, i) => (`
                   <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="${i + 1}" id="rating-${i + 1}" ${ Math.round(data.userRating) === i + 1 ? `checked` : ``}>

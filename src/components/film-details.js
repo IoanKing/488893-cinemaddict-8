@@ -1,4 +1,5 @@
 import Selector from "../modules/selectors";
+import Settings from "../modules/settings";
 import Component from "./component";
 import {ENTER_KEYCODE, ESC_KEYCODE} from "../modules/utils";
 import templateFilmDetail from "../templates/template-film-details";
@@ -35,6 +36,7 @@ export default class FilmDetails extends Component {
     this._onMarkAsFavorite = this._onMarkAsFavorite.bind(this);
     this._onRatingUpdate = this._onRatingUpdate.bind(this);
     this._onAddComment = this._onAddComment.bind(this);
+    this._onDeleteComment = this._onDeleteComment.bind(this);
     this._onClosePressEsc = this._onClosePressEsc.bind(this);
 
     this._isCreate = false;
@@ -53,47 +55,58 @@ export default class FilmDetails extends Component {
     }
   }
 
-  _onAddToWatchList(evt) {
-    evt.preventDefault();
+  _onAddToWatchList() {
     if (typeof this._onWatchList === `function`) {
       this._isWatchList = !this._isWatchList;
       this._onWatchList(this._isWatchList);
     }
   }
 
-  _onMarkAsWatched(evt) {
-    evt.preventDefault();
+  _onMarkAsWatched() {
     if (typeof this._onWatched === `function`) {
       this._isWatched = !this._isWatched;
       this._onWatched(this._isWatched);
     }
   }
 
-  _onMarkAsFavorite(evt) {
-    evt.preventDefault();
+  _onMarkAsFavorite() {
     if (typeof this._onFavorite === `function`) {
       this._isFavorites = !this._isFavorites;
       this._onFavorite(this._isFavorites);
     }
   }
 
-  _onRatingUpdate(evt) {
-    evt.preventDefault();
+  _onRatingUpdate() {
     const formData = new FormData(this._element.querySelector(`.${Selector.FORM}`));
     const newData = this._processForm(formData);
     if (typeof this._onRatingChange === `function`) {
       this._userRating = newData.userRating;
       this._onRatingChange(this._userRating);
     }
-    this.update(newData);
   }
 
   _onAddComment(evt) {
     if (evt.keyCode === ENTER_KEYCODE && evt.ctrlKey && typeof this._onComment === `function`) {
       const formData = new FormData(this._element.querySelector(`.${Selector.FORM}`));
       const newData = this._processForm(formData);
+      const commentControl = this._element.querySelector(`.${Selector.USER_RATING_CONTROL}`);
       this._comments = newData.comments;
       this._onComment(this._comments);
+
+      commentControl.classList.remove(Selector.HIDDEN);
+    }
+  }
+
+  _onDeleteComment(evt) {
+    evt.preventDefault();
+    if (typeof this._onComment === `function`) {
+      const sortedComments = Object.values(this._comments).sort((a, b) => b.date - a.date);
+      const index = sortedComments.findIndex((it) => it.author === Settings.USER_NAME);
+      if (index >= 0) {
+        sortedComments.splice(index, 1);
+        this._comments = sortedComments;
+        this._onComment(this._comments);
+      }
     }
   }
 
@@ -115,7 +128,7 @@ export default class FilmDetails extends Component {
         newComment.emotion = value;
       }
     }
-    newComment.author = `Unknown`;
+    newComment.author = Settings.USER_NAME;
     newComment.date = new Date();
 
     if (newComment.comment.trim() !== ``) {
@@ -145,7 +158,7 @@ export default class FilmDetails extends Component {
     this._onRatingChange = fn;
   }
 
-  set onAddComment(fn) {
+  set onChangeComment(fn) {
     this._onComment = fn;
   }
 
@@ -206,6 +219,8 @@ export default class FilmDetails extends Component {
       .addEventListener(`click`, this._onMarkAsFavorite);
     this._element.querySelector(`.${Selector.COMMENT_INPUT}`)
       .addEventListener(`keypress`, this._onAddComment);
+    this._element.querySelector(`.${Selector.DELETE_COMMENT}`)
+      .addEventListener(`click`, this._onDeleteComment);
     this._element.querySelectorAll(`.${Selector.RATING_INPUT}`)
       .forEach((it) => {
         it.addEventListener(`click`, this._onRatingUpdate);
@@ -224,6 +239,8 @@ export default class FilmDetails extends Component {
       .removeEventListener(`click`, this._onMarkAsFavorite);
     this._element.querySelector(`.${Selector.COMMENT_INPUT}`)
       .removeEventListener(`keypress`, this._onAddComment);
+    this._element.querySelector(`.${Selector.DELETE_COMMENT}`)
+      .removeEventListener(`click`, this._onDeleteComment);
     this._element.querySelectorAll(`.${Selector.RATING_INPUT}`)
       .forEach((it) => {
         it.removeEventListener(`click`, this._onRatingUpdate);

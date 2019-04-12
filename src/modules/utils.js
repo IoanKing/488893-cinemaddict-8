@@ -1,10 +1,4 @@
-const MIN_COUNT = 0;
-const MAX_COUNT = 30;
-
-const MAX_RATING = 9;
-
-const DEFAULT_EXTRA_COUNT = 2;
-const MOVIE_SHOW_COUNT = 5;
+import Settings from "./settings";
 
 const ENTER_KEYCODE = 10;
 const ESC_KEYCODE = 27;
@@ -40,7 +34,7 @@ const FiltersName = {
  * @param {number} max максимальнео значение интервала.
  * @return {number} сгенерированное число.
  */
-const getRandomInt = (min = MIN_COUNT, max = MAX_COUNT) => Math.floor(Math.random() * (max - min)) + min;
+const getRandomInt = (min = Settings.MIN_COUNT, max = Settings.MAX_COUNT) => Math.floor(Math.random() * (max - min)) + min;
 
 /**
  * Генерация случайного дробного числа на заданном интервале.
@@ -48,7 +42,7 @@ const getRandomInt = (min = MIN_COUNT, max = MAX_COUNT) => Math.floor(Math.rando
  * @param {number} max максимальнео значение интервала.
  * @return {number} сгенерированное дробное число.
  */
-const getRandomFloat = (min = MIN_COUNT, max = MAX_COUNT) => getRandomInt(min, max) + Math.floor(Math.random() * 10) / 10;
+const getRandomFloat = (min = Settings.MIN_COUNT, max = Settings.MAX_COUNT) => getRandomInt(min, max) + Math.floor(Math.random() * 10) / 10;
 
 /**
  * Выбор случайного элемента из коллекции объектов.
@@ -107,10 +101,7 @@ export {
   getRandomElement,
   getRandomFloat,
   createElement,
-  DEFAULT_EXTRA_COUNT,
-  MOVIE_SHOW_COUNT,
   Emoji,
-  MAX_RATING,
   ChartSettings,
   getRandomString,
   ENTER_KEYCODE,
