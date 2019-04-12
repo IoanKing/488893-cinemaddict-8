@@ -6,7 +6,7 @@ const MAX_RATING = 9;
 const DEFAULT_EXTRA_COUNT = 2;
 const MOVIE_SHOW_COUNT = 5;
 
-const ENTER_KEYCODE = 13;
+const ENTER_KEYCODE = 10;
 const ESC_KEYCODE = 27;
 
 const DEBOUNCE_INTERVAL = 600;
