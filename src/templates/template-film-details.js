@@ -3,6 +3,45 @@ import {Emoji, MAX_RATING} from "../modules/utils";
 
 export default (data) => {
 
+  const comments = Array.from(data.comments).map((comment) => {
+    const nowDate = new Date();
+    const timeAgo = moment.duration(moment(nowDate).diff(comment.date));
+    let timeCount = ``;
+    let timeText = ``;
+
+    if (timeAgo.get(`years`) > 0) {
+      timeCount = timeAgo.get(`years`);
+      timeText = `years`;
+    } else if (timeAgo.get(`months`) > 0) {
+      timeCount = timeAgo.get(`months`);
+      timeText = `months`;
+    } else if (timeAgo.get(`days`) > 0) {
+      timeCount = timeAgo.get(`days`);
+      timeText = `days`;
+    } else if (timeAgo.get(`hours`) > 0) {
+      timeCount = timeAgo.get(`hours`);
+      timeText = `hours`;
+    } else if (timeAgo.get(`minutes`) > 0) {
+      timeCount = timeAgo.get(`minutes`);
+      timeText = `minutes`;
+    } else if (timeAgo.get(`seconds`) > 0) {
+      timeCount = timeAgo.get(`seconds`);
+      timeText = `seconds`;
+    }
+
+    return `
+    <li class="film-details__comment">
+      <span class="film-details__comment-emoji">${Emoji[comment.emotion]}</span>
+      <div>
+        <p class="film-details__comment-text">${comment.comment}</p>
+        <p class="film-details__comment-info">
+          <span class="film-details__comment-author">${comment.author}</span>
+          <span class="film-details__comment-day">${timeCount} ${timeText} ago</span>
+        </p>
+      </div>
+    </li>`.trim();
+  }).join(``);
+
   return `
     <form class="film-details__inner" action="" method="get">
         <div class="film-details__close">
@@ -83,18 +122,7 @@ export default (data) => {
           <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${data.comments.length}</span></h3>
 
           <ul class="film-details__comments-list">
-            ${(Array.from(data.comments).map((comment) => (`
-            <li class="film-details__comment">
-            <span class="film-details__comment-emoji">${Emoji[comment.emotion]}</span>
-            <div>
-              <p class="film-details__comment-text">${comment.comment}</p>
-              <p class="film-details__comment-info">
-                <span class="film-details__comment-author">${comment.author}</span>
-                <span class="film-details__comment-day">${moment(new Date() - comment.date).format(`D`)} days ago</span>
-              </p>
-            </div>
-          </li>`.trim())))
-          .join(``)}
+            ${comments}
           </ul>
 
           <div class="film-details__new-comment">
