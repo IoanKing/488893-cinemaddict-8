@@ -4,7 +4,7 @@ const MAX_COUNT = 30;
 const MAX_RATING = 9;
 
 const DEFAULT_EXTRA_COUNT = 2;
-const MAX_MOVIE_COUNT = 5;
+const MOVIE_SHOW_COUNT = 5;
 
 const ENTER_KEYCODE = 13;
 const ESC_KEYCODE = 27;
@@ -108,7 +108,7 @@ export {
   getRandomFloat,
   createElement,
   DEFAULT_EXTRA_COUNT,
-  MAX_MOVIE_COUNT,
+  MOVIE_SHOW_COUNT,
   Emoji,
   MAX_RATING,
   ChartSettings,

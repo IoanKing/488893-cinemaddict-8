@@ -11,7 +11,7 @@ import API from "./modules/api";
 import Selector from "./modules/selectors";
 import debounce from "./modules/debounce";
 import {filterFilms, getFilters, setActiveFilter} from "./modules/filtering";
-import {getRandomString, createElement, FiltersName} from "./modules/utils";
+import {getRandomString, createElement, FiltersName, MOVIE_SHOW_COUNT} from "./modules/utils";
 
 const messages = {
   ERROR: `Something went wrong while loading movies. Check your connection or try again later`,
@@ -25,8 +25,8 @@ const elementDom = {
   TOP_COMMENTED: document.querySelector(`#${Selector.COMMENTED_MOVIE}`),
   MAIN: document.querySelector(`${Selector.MAIN}`),
   BODY: document.querySelector(`${Selector.BODY}`),
-  FOOTER_STATISTIC: document.querySelector(`${Selector.FOOTER_STATISTIC}`),
-  PROFILE_RATING: document.querySelector(`${Selector.PROFILE_RATING}`),
+  FOOTER_STATISTIC: document.querySelector(`.${Selector.FOOTER_STATISTIC}`),
+  PROFILE_RATING: document.querySelector(`.${Selector.PROFILE_RATING}`),
   HEAD: document.querySelector(`${Selector.HEAD}`),
   SEARCH: document.querySelector(`.${Selector.SEARCH}`),
 };
@@ -37,6 +37,7 @@ const apiSetting = {
 };
 
 const api = new API({endPoint: apiSetting.END_POINT, authorization: apiSetting.AUTHORIZATION});
+let currentShowCount = MOVIE_SHOW_COUNT;
 let activeFilter = `all`;
 let searchElement = null;
 
@@ -279,6 +280,34 @@ const renderSearch = (collection) => {
 };
 
 /**
+ * Отрисовывает секцию с количеством фильмов в Футере.
+ * @param {*} count - Количество фильмов
+ */
+const renderCountFilms = (count) => {
+  elementDom.FOOTER_STATISTIC.innerHTML = ``;
+  const filmsCount = count.toString().replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, `$1`);
+  const filmsCountText = `<p> ${filmsCount} movie inside</p>`;
+  elementDom.FOOTER_STATISTIC.innerHTML = filmsCountText;
+};
+
+/**
+ * Отрисовывает секцию с количеством фильмов в Футере.
+ * @param {*} collection - Коллекция фильмов.
+ */
+const renderProfille = (collection) => {
+  const filmCount = Object.values(collection).reduce((sum, current) => +sum + +current.isWatched, 0);
+  let renderText = ``;
+  if (filmCount > 1 && filmCount <= 10) {
+    renderText = `novice`;
+  } else if (filmCount > 10 && filmCount <= 20) {
+    renderText = `fan`;
+  } else if (filmCount > 20) {
+    renderText = `movie buff`;
+  }
+  elementDom.PROFILE_RATING.innerHTML = renderText;
+};
+
+/**
  * Инициализация скриптов для сайта.
  *  Запускает функцию отрисовки фильтров;
  *  Запускает функцию установки активного фильтра;
@@ -288,6 +317,7 @@ const renderSearch = (collection) => {
 const init = () => {
   elementDom.HEAD.insertAdjacentElement(`beforeend`, createElement(tamplateStyle()));
   elementDom.FILMS.innerHTML = `${messages.LOAD}`;
+  elementDom.PROFILE_RATING.innerHTML = ``;
   api.getFilms()
     .then((films) => {
       renderFilmList(films, elementDom.FILMS, activeFilter);
@@ -300,6 +330,9 @@ const init = () => {
       renderFilmList(films, elementDom.TOP_COMMENTED, FiltersName.TOP_COMMENTED);
 
       searchElement = renderSearch(films);
+
+      renderCountFilms(films.length);
+      renderProfille(films);
     })
     .catch((error) => {
       elementDom.MAIN.innerText = `${messages.ERROR}
