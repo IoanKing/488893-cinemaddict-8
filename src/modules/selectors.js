@@ -37,4 +37,5 @@ export default {
   PROFILE_RATING: `profile__rating`,
   STAT_FILTERS: `statistic__filters`,
   STAT_FILTER: `statistic__filters-input`,
+  SEARCH_FILED: `search__field`
 };

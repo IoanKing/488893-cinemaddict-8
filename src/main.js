@@ -43,6 +43,13 @@ const api = new API({endPoint: apiSetting.END_POINT, authorization: apiSetting.A
 let activeFilter = `all`;
 let searchElement = null;
 
+const reserSearch = () => {
+  const searchFiled = document.querySelector(`.${Selector.SEARCH_FILED}`);
+  if (searchFiled) {
+    searchFiled.value = ``;
+  }
+};
+
 /**
  * Отрисовка фильтров на странице.
  * @param {object} Films - коллекция обьектов.
@@ -60,6 +67,7 @@ const renderFilters = (Films, container) => {
       api.getFilms()
       .then((films) => {
         renderFilmList(films, elementDom.FILMS, filterName);
+        reserSearch();
       })
       .catch((error) => {
         elementDom.MAIN.innerText = `${messages.ERROR}
@@ -106,6 +114,7 @@ const renderFilmList = (films, container, filter = `all`, searchPrase = ``) => {
         renderFilters(films, elementDom.FILTERS);
         renderFilmList(films, elementDom.FILMS, filter);
         activeFilter = setActiveFilter(elementDom.FILTERS, filter);
+        reserSearch();
       });
     };
 
@@ -235,7 +244,13 @@ const renderFilmList = (films, container, filter = `all`, searchPrase = ``) => {
       filmDetailComponent.onClose = () => {
         filmDetailComponent.unrender();
         renderFilters(films, elementDom.FILTERS);
-        renderFilmList(films, elementDom.FILMS, filter, true);
+        if (filter === FiltersName.SEARCH) {
+          const searchFiled = document.querySelector(`.${Selector.SEARCH_FILED}`);
+          console.log(searchFiled.value);
+          renderFilmList(films, elementDom.FILMS, filter, searchFiled.value);
+        } else {
+          renderFilmList(films, elementDom.FILMS, filter);
+        }
         activeFilter = setActiveFilter(elementDom.FILTERS, filter);
       };
     };
@@ -277,7 +292,6 @@ const renderStatistic = () => {
         switch (filterName) {
           case `today`:
             newCollection = Object.values(films).filter((it) => {
-              console.log(it.watchedDate);
               return moment(it.watchedDate).isBetween(moment().startOf(`day`), moment().endOf(`day`));
             });
             break;
