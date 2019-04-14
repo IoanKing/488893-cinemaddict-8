@@ -82,9 +82,9 @@ const getFilters = (collection) => {
  * @param {string} currentFilter - текущий активный фильтр.
  * @return {string} - текущий активный фильтр.
  */
-const setActiveFilter = (container, filterName, currentFilter) => {
+const setActiveFilter = (container, filterName) => {
   const filters = container.querySelectorAll(`.${Selector.NAVIGATION_ITEM}`);
-  let activeFilter = currentFilter;
+  let activeFilter = null;
   filters.forEach((it) => {
     if (it.getAttribute(`href`)) {
       activeFilter = it.getAttribute(`href`).split(`#`).pop();
@@ -102,7 +102,7 @@ const setActiveFilter = (container, filterName, currentFilter) => {
       }
     }
   });
-  return activeFilter;
+  return filterName;
 };
 
 export {filterFilms, getFilters, setActiveFilter};

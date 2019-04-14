@@ -36,9 +36,11 @@ const elementDom = {
 };
 
 const api = new API({endPoint: settings.END_POINT, authorization: settings.AUTHORIZATION});
-let activeFilter = `all`;
-let searchElement = null;
-let filmShowCount = settings.MOVIE_SHOW_COUNT;
+const global = {
+  activeFilter: null,
+  searchElement: null,
+  filmsCollection: null,
+};
 
 /**
  * Очистка текста в поле поиска.
@@ -61,21 +63,21 @@ const renderFilters = (Films, container) => {
 
   for (const filter of filters) {
     const filterComponent = new Filter(filter);
-
     filterComponent.onFilter = (evt) => {
       const filterName = evt.target.getAttribute(`href`).split(`#`).pop();
       api.getFilms()
       .then((films) => {
-        renderFilmList(films, elementDom.FILMS, filterName);
+        global.filmsCollection = films;
+        const filteredFilms = filterFilms(films, filterName);
+        renderFilmList(filteredFilms, elementDom.FILMS);
         clearSearch();
       })
       .catch((error) => {
         elementDom.MAIN.innerText = `${messages.ERROR}
         ${error}`;
       });
-      activeFilter = setActiveFilter(elementDom.FILTERS, filterName);
+      global.activeFilter = setActiveFilter(elementDom.FILTERS, filterName);
     };
-
     container.insertAdjacentElement(`afterbegin`, filterComponent.render());
   }
 
@@ -110,156 +112,173 @@ const unblock = (element) => {
 };
 
 /**
+ * Отправка обновленных данных на сервер, и перерисовка страницы.
+ * @param {*} updateData - Обновленные данные.
+ */
+const updateCollection = (updateData) => {
+  api.updateFilm({id: updateData.id, data: updateData.toRAW()})
+  .then(() => {
+    updatePage();
+    clearSearch();
+  });
+};
+
+/**
+ * Отправка обновленных данных на сервер, и перерисовка страницы.
+ * @param {*} collection - Колеекция объектов.
+ * @param {*} updateData - Обновленные данные.
+ */
+const updatePopup = (collection, updateData) => {
+  block(collection);
+  api.updateFilm({id: updateData.id, data: updateData.toRAW()})
+    .then(() => {
+      unblock(collection);
+    })
+    .catch(() => {
+      collection.shake();
+      unblock(collection);
+    });
+};
+
+/**
+ * Создание/открытие popup.
+ * @param {Object} data - Данные для формирования popup
+ */
+const renderPopup = (data) => {
+  const filmDetailComponent = new FilmDetail(data);
+  elementDom.BODY.appendChild(filmDetailComponent.render());
+
+  filmDetailComponent.onAddToWatchList = (bool) => {
+    data.isWatchList = bool;
+    updatePopup(filmDetailComponent.element, data);
+  };
+
+  filmDetailComponent.onMarkAsWatched = (bool) => {
+    data.isWatched = bool;
+    data.watchedDate = moment();
+    updatePopup(filmDetailComponent.element, data);
+  };
+
+  filmDetailComponent.onMarkAsFavorite = (bool) => {
+    data.isFavorites = bool;
+    updatePopup(filmDetailComponent.element, data);
+  };
+
+  filmDetailComponent.onRatingUpdate = (newData) => {
+    data.userRating = newData;
+    block(filmDetailComponent.element);
+
+    const votingFilelds = filmDetailComponent.element.querySelectorAll(`.${Selector.RATING_LABEL}`);
+    const userRating = filmDetailComponent.element.querySelector(`.${Selector.USER_RATING}`);
+    userRating.innerHTML = ``;
+
+    votingFilelds.forEach((it) => {
+      it.style.backgroundColor = `gray`;
+    });
+
+    api.updateFilm({id: data.id, data: data.toRAW()})
+      .then(() => {
+        unblock(filmDetailComponent.element);
+        votingFilelds.forEach((it) => {
+          it.removeAttribute(`style`);
+        });
+        userRating.innerHTML = `Your rate ${data.userRating}`;
+      })
+      .catch(() => {
+        filmDetailComponent.shake();
+        votingFilelds.forEach((it) => {
+          it.style.backgroundColor = `red`;
+        });
+        unblock(filmDetailComponent.element);
+      });
+  };
+
+  filmDetailComponent.onChangeComment = (newData) => {
+    data.comments = newData;
+    block(filmDetailComponent.element);
+    const commentField = filmDetailComponent.element.querySelector(`.${Selector.COMMENT_INPUT}`);
+    const commentList = filmDetailComponent.element.querySelector(`.${Selector.COMMENTS}`);
+    const commentEmoji = filmDetailComponent.element.querySelector(`.${Selector.COMMENT_EMOJI}`);
+    commentField.style.border = `solid 1px #979797`;
+    commentField.style.padding = `15px 10px`;
+    commentField.style.backgroundColor = `gray`;
+    api.updateFilm({id: data.id, data: data.toRAW()})
+      .then(() => {
+        commentList.innerHTML = ``;
+        commentList.insertAdjacentHTML(`beforeend`, templateComments(data.comments));
+        commentField.removeAttribute(`style`);
+        commentField.value = ``;
+        commentEmoji.checked = false;
+        unblock(filmDetailComponent.element);
+      })
+      .catch(() => {
+        filmDetailComponent.shake();
+        commentField.style.border = `solid 6px red`;
+        commentField.style.padding = `10px 10px`;
+        commentField.style.backgroundColor = `#f6f6f6`;
+        unblock(filmDetailComponent.element);
+      });
+  };
+
+  filmDetailComponent.onClose = () => {
+    elementDom.BODY.removeChild(filmDetailComponent.element);
+    filmDetailComponent.unrender();
+    updatePage();
+  };
+};
+
+/**
+ * Перерисовывает страниц
+ */
+const updatePage = () => {
+  const searchFiled = document.querySelector(`.${Selector.SEARCH_FILED}`);
+
+  renderFilters(global.filmsCollection, elementDom.FILTERS);
+  setActiveFilter(elementDom.FILTERS, global.activeFilter);
+
+  if (searchFiled.value !== ``) {
+    const searchedFilms = filterFilms(global.filmsCollection, FiltersName.SEARCH, searchFiled.value);
+    renderFilmList(searchedFilms, elementDom.FILMS);
+  } else {
+    const films = filterFilms(global.filmsCollection, global.activeFilter);
+    renderFilmList(films, elementDom.FILMS);
+  }
+};
+
+/**
  * Отрисовка карточек фильмов на странице.
  * @param {object} films - коллекция обьектов для торисовки.
  * @param {object} container - DOM элемент, в котором будет выполняться отрисовка.
- * @param {bool} filter - текущий фильтр.
- * @param {string} searchPrase - поисковая фраза.
- * @param {bool} isControl - признак отрисовки контролов для обьекта.
+ * @param {bool} isShowDetail - признак отрисовки контролов для обьекта.
  */
-const renderFilmList = (films, container, filter = `all`, searchPrase = ``) => {
+const renderFilmList = (films, container, isShowDetail = true) => {
   container.innerHTML = ``;
-  const filteredFilms = filterFilms(films, filter, searchPrase);
 
-  for (const film of filteredFilms) {
-
+  for (const film of films) {
     const filmComponent = new Film(film);
-    let popup = null;
-
-    if (filter === FiltersName.TOP_RATED || filter === FiltersName.TOP_COMMENTED) {
-      filmComponent.isShowDetail = false;
-    }
+    filmComponent.isShowDetail = isShowDetail;
 
     const renderedFilm = filmComponent.render();
-
     container.appendChild(renderedFilm);
-
-    const update = (movie) => {
-      api.updateFilm({id: movie.id, data: movie.toRAW()})
-      .then(() => {
-        renderFilters(films, elementDom.FILTERS);
-        renderFilmList(films, elementDom.FILMS, filter);
-        activeFilter = setActiveFilter(elementDom.FILTERS, filter);
-        clearSearch();
-      });
-    };
 
     filmComponent.onAddToWatchList = (bool) => {
       film.isWatchList = bool;
-      update(film);
+      updateCollection(film);
     };
 
     filmComponent.onMarkAsWatched = (bool) => {
       film.isWatched = bool;
       film.watchedDate = moment();
-      update(film);
+      updateCollection(film);
     };
 
     filmComponent.onMarkAsFavorite = (bool) => {
       film.isFavorites = bool;
-      update(film);
+      updateCollection(film);
     };
 
     filmComponent.onClick = () => {
-      if (popup) {
-        elementDom.BODY.removeChild(popup);
-      }
-      const filmDetailComponent = new FilmDetail(filmComponent.filmData);
-      popup = filmDetailComponent.render();
-      elementDom.BODY.appendChild(popup);
-
-      const updateDetail = (movie) => {
-        block(filmDetailComponent.element);
-        api.updateFilm({id: movie.id, data: movie.toRAW()})
-          .then(() => {
-            unblock(filmDetailComponent.element);
-          })
-          .catch(() => {
-            filmDetailComponent.shake();
-            unblock(filmDetailComponent.element);
-          });
-      };
-
-      filmDetailComponent.onAddToWatchList = (bool) => {
-        film.isWatchList = bool;
-        updateDetail(film);
-      };
-
-      filmDetailComponent.onMarkAsWatched = (bool) => {
-        film.isWatched = bool;
-        film.watchedDate = moment();
-        updateDetail(film);
-      };
-
-      filmDetailComponent.onMarkAsFavorite = (bool) => {
-        film.isFavorites = bool;
-        updateDetail(film);
-      };
-
-      filmDetailComponent.onRatingUpdate = (newData) => {
-        film.userRating = newData;
-        const votingFilelds = filmDetailComponent.element.querySelectorAll(`.${Selector.RATING_LABEL}`);
-        const userRating = filmDetailComponent.element.querySelector(`.${Selector.USER_RATING}`);
-        block(filmDetailComponent.element);
-        userRating.innerHTML = ``;
-        votingFilelds.forEach((it) => {
-          it.style.backgroundColor = `gray`;
-        });
-        api.updateFilm({id: film.id, data: film.toRAW()})
-          .then(() => {
-            unblock(filmDetailComponent.element);
-            votingFilelds.forEach((it) => {
-              it.removeAttribute(`style`);
-            });
-            userRating.innerHTML = `Your rate ${film.userRating}`;
-          })
-          .catch(() => {
-            filmDetailComponent.shake();
-            votingFilelds.forEach((it) => {
-              it.style.backgroundColor = `red`;
-            });
-            unblock(filmDetailComponent.element);
-          });
-      };
-
-      filmDetailComponent.onChangeComment = (newData) => {
-        film.comments = newData;
-        block(filmDetailComponent.element);
-        const commentField = filmDetailComponent.element.querySelector(`.${Selector.COMMENT_INPUT}`);
-        const commentList = filmDetailComponent.element.querySelector(`.${Selector.COMMENTS}`);
-        const commentEmoji = filmDetailComponent.element.querySelector(`.${Selector.COMMENT_EMOJI}`);
-        commentField.style.border = `solid 1px #979797`;
-        commentField.style.padding = `15px 10px`;
-        commentField.style.backgroundColor = `gray`;
-        api.updateFilm({id: film.id, data: film.toRAW()})
-          .then(() => {
-            commentList.innerHTML = ``;
-            commentList.insertAdjacentHTML(`beforeend`, templateComments(film.comments));
-            commentField.removeAttribute(`style`);
-            commentField.value = ``;
-            commentEmoji.checked = false;
-            unblock(filmDetailComponent.element);
-          })
-          .catch(() => {
-            filmDetailComponent.shake();
-            commentField.style.border = `solid 6px red`;
-            commentField.style.padding = `10px 10px`;
-            commentField.style.backgroundColor = `#f6f6f6`;
-            unblock(filmDetailComponent.element);
-          });
-      };
-
-      filmDetailComponent.onClose = () => {
-        filmDetailComponent.unrender();
-        renderFilters(films, elementDom.FILTERS);
-        if (filter === FiltersName.SEARCH) {
-          const searchFiled = document.querySelector(`.${Selector.SEARCH_FILED}`);
-          renderFilmList(films, elementDom.FILMS, filter, searchFiled.value);
-        } else {
-          renderFilmList(films, elementDom.FILMS, filter);
-        }
-        activeFilter = setActiveFilter(elementDom.FILTERS, filter);
-      };
+      renderPopup(film);
     };
   }
 };
@@ -270,14 +289,36 @@ const renderFilmList = (films, container, filter = `all`, searchPrase = ``) => {
  */
 const onClickStat = (evt) => {
   const filterName = evt.target.getAttribute(`href`).split(`#`).pop();
-  activeFilter = setActiveFilter(elementDom.FILTERS, filterName);
-
+  global.activeFilter = setActiveFilter(elementDom.FILTERS, filterName);
   renderStatistic();
-
   const filmsContainer = document.querySelector(`.${Selector.FILMS}`);
   filmsContainer.classList.add(Selector.HIDDEN);
+  global.searchElement.value = ``;
+};
 
-  searchElement.value = ``;
+/**
+ * Фильтрация коллекции по заданному фильтру.
+ * @param {object} collection - Начальная коллекция.
+ * @param {string} filterName - Имя фильтра.
+ * @return {object} - отфильтрованная коллекция.
+ */
+const getFilteredCollection = (collection, filterName = FiltersName.ALL) => {
+  let newCollection = collection;
+  switch (filterName) {
+    case `today`:
+      newCollection = Object.values(collection).filter((it) => moment(it.watchedDate).isBetween(moment().startOf(`day`), moment().endOf(`day`)));
+      break;
+    case `week`:
+      newCollection = Object.values(collection).filter((it) => moment(it.watchedDate).isBetween(moment().startOf(`week`), moment().endOf(`week`)));
+      break;
+    case `month`:
+      newCollection = Object.values(collection).filter((it) => moment(it.watchedDate).isBetween(moment().startOf(`month`), moment().endOf(`month`)));
+      break;
+    case `year`:
+      newCollection = Object.values(collection).filter((it) => moment(it.watchedDate).isBetween(moment().startOf(`year`), moment().endOf(`year`)));
+      break;
+  }
+  return newCollection;
 };
 
 /**
@@ -286,6 +327,7 @@ const onClickStat = (evt) => {
 const renderStatistic = () => {
   api.getFilms()
     .then((films) => {
+      global.filmsCollection = films;
       const stat = new Statistics(films);
       stat.render();
       let staticticContainer = stat.element.querySelector(`.${Selector.STATISTIC_CHART}`);
@@ -295,22 +337,7 @@ const renderStatistic = () => {
       stat.onFilter = (evt) => {
         const filterName = evt.target.value;
         const oldChild = stat.element;
-        let newCollection = films;
-        switch (filterName) {
-          case `today`:
-            newCollection = Object.values(films).filter((it) => moment(it.watchedDate).isBetween(moment().startOf(`day`), moment().endOf(`day`)));
-            break;
-          case `week`:
-            newCollection = Object.values(films).filter((it) => moment(it.watchedDate).isBetween(moment().startOf(`week`), moment().endOf(`week`)));
-            break;
-          case `month`:
-            newCollection = Object.values(films).filter((it) => moment(it.watchedDate).isBetween(moment().startOf(`month`), moment().endOf(`month`)));
-            break;
-          case `year`:
-            newCollection = Object.values(films).filter((it) => moment(it.watchedDate).isBetween(moment().startOf(`year`), moment().endOf(`year`)));
-            break;
-        }
-        stat.update = newCollection;
+        stat.update = getFilteredCollection(films, filterName);
         stat.render();
         staticticContainer = stat.element.querySelector(`.${Selector.STATISTIC_CHART}`);
         stat.element.querySelector(`#statistic-${filterName}`).checked = true;
@@ -325,6 +352,16 @@ const renderStatistic = () => {
 };
 
 /**
+ * Обновление списка фильмов - перерисовка.
+ * @param {object} collection - коллекция обьектов
+ * @param {string} text - Поисковая фраза
+ */
+const searchRender = (collection, text) => {
+  const films = filterFilms(collection, FiltersName.SEARCH, text);
+  renderFilmList(films, elementDom.FILMS);
+};
+
+/**
  * Отрисовка и выполнение поиска
  * @param {*} collection - Коллекция обьектов
  * @return {object} - DOM элемент поиска
@@ -335,7 +372,7 @@ const renderSearch = (collection) => {
   elementDom.SEARCH.insertAdjacentElement(`beforeend`, searchComponent.render());
 
   searchComponent.onChange = () => {
-    debounce(renderFilmList(collection, elementDom.FILMS, FiltersName.SEARCH, searchComponent.element.value));
+    debounce(searchRender(collection, searchComponent.element.value));
   };
 
   return searchComponent.element;
@@ -382,14 +419,18 @@ const init = () => {
   elementDom.PROFILE_RATING.innerHTML = ``;
   api.getFilms()
     .then((films) => {
-      renderFilmList(films, elementDom.FILMS, activeFilter);
+      global.filmsCollection = films;
       renderFilters(films, elementDom.FILTERS);
-      activeFilter = setActiveFilter(elementDom.FILTERS, activeFilter);
+      global.activeFilter = setActiveFilter(elementDom.FILTERS, FiltersName.ALL);
 
-      renderFilmList(films, elementDom.TOP_RATING, FiltersName.TOP_RATED);
-      renderFilmList(films, elementDom.TOP_COMMENTED, FiltersName.TOP_COMMENTED);
+      const allFilms = filterFilms(films, global.activeFilter);
+      renderFilmList(allFilms, elementDom.FILMS, global.activeFilter);
+      const topRatedFilms = filterFilms(films, FiltersName.TOP_RATED);
+      renderFilmList(topRatedFilms, elementDom.TOP_RATING, false);
+      const topCommentedFilms = filterFilms(films, FiltersName.TOP_RATED);
+      renderFilmList(topCommentedFilms, elementDom.TOP_COMMENTED, false);
 
-      searchElement = renderSearch(films);
+      global.searchElement = renderSearch(films);
       renderCountFilms(films.length);
       renderProfille(films);
     })
