@@ -1,4 +1,5 @@
-import Settings from "./settings";
+const MIN_DEFAUT_RANDOM = 0;
+const MAX_DEFAUT_RANDOM = 30;
 
 const ENTER_KEYCODE = 10;
 const ESC_KEYCODE = 27;
@@ -34,7 +35,7 @@ const FiltersName = {
  * @param {number} max максимальнео значение интервала.
  * @return {number} сгенерированное число.
  */
-const getRandomInt = (min = Settings.MIN_COUNT, max = Settings.MAX_COUNT) => Math.floor(Math.random() * (max - min)) + min;
+const getRandomInt = (min = MIN_DEFAUT_RANDOM, max = MAX_DEFAUT_RANDOM) => Math.floor(Math.random() * (max - min)) + min;
 
 /**
  * Генерация случайного дробного числа на заданном интервале.
@@ -42,7 +43,7 @@ const getRandomInt = (min = Settings.MIN_COUNT, max = Settings.MAX_COUNT) => Mat
  * @param {number} max максимальнео значение интервала.
  * @return {number} сгенерированное дробное число.
  */
-const getRandomFloat = (min = Settings.MIN_COUNT, max = Settings.MAX_COUNT) => getRandomInt(min, max) + Math.floor(Math.random() * 10) / 10;
+const getRandomFloat = (min = MIN_DEFAUT_RANDOM, max = MAX_DEFAUT_RANDOM) => getRandomInt(min, max) + Math.floor(Math.random() * 10) / 10;
 
 /**
  * Выбор случайного элемента из коллекции объектов.

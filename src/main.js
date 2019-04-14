@@ -13,8 +13,9 @@ import API from "./modules/api";
 import Selector from "./modules/selectors";
 import debounce from "./modules/debounce";
 import {filterFilms, getFilters, setActiveFilter} from "./modules/filtering";
-import {getRandomString, createElement, FiltersName} from "./modules/utils";
+import {createElement, FiltersName} from "./modules/utils";
 import moment from "moment";
+import settings from "./modules/settings";
 
 const messages = {
   ERROR: `Something went wrong while loading movies. Check your connection or try again later`,
@@ -34,14 +35,10 @@ const elementDom = {
   SEARCH: document.querySelector(`.${Selector.SEARCH}`),
 };
 
-const apiSetting = {
-  AUTHORIZATION: `Basic ${getRandomString()}`,
-  END_POINT: `https://es8-demo-srv.appspot.com/moowle`
-};
-
-const api = new API({endPoint: apiSetting.END_POINT, authorization: apiSetting.AUTHORIZATION});
+const api = new API({endPoint: settings.END_POINT, authorization: settings.AUTHORIZATION});
 let activeFilter = `all`;
 let searchElement = null;
+let filmShowCount = settings.MOVIE_SHOW_COUNT;
 
 /**
  * Очистка текста в поле поиска.
@@ -386,16 +383,13 @@ const init = () => {
   api.getFilms()
     .then((films) => {
       renderFilmList(films, elementDom.FILMS, activeFilter);
-
       renderFilters(films, elementDom.FILTERS);
       activeFilter = setActiveFilter(elementDom.FILTERS, activeFilter);
 
       renderFilmList(films, elementDom.TOP_RATING, FiltersName.TOP_RATED);
-
       renderFilmList(films, elementDom.TOP_COMMENTED, FiltersName.TOP_COMMENTED);
 
       searchElement = renderSearch(films);
-
       renderCountFilms(films.length);
       renderProfille(films);
     })
