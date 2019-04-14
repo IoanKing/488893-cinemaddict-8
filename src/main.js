@@ -43,7 +43,10 @@ const api = new API({endPoint: apiSetting.END_POINT, authorization: apiSetting.A
 let activeFilter = `all`;
 let searchElement = null;
 
-const reserSearch = () => {
+/**
+ * Очистка текста в поле поиска.
+ */
+const clearSearch = () => {
   const searchFiled = document.querySelector(`.${Selector.SEARCH_FILED}`);
   if (searchFiled) {
     searchFiled.value = ``;
@@ -67,7 +70,7 @@ const renderFilters = (Films, container) => {
       api.getFilms()
       .then((films) => {
         renderFilmList(films, elementDom.FILMS, filterName);
-        reserSearch();
+        clearSearch();
       })
       .catch((error) => {
         elementDom.MAIN.innerText = `${messages.ERROR}
@@ -84,11 +87,37 @@ const renderFilters = (Films, container) => {
 };
 
 /**
+ * Блокировка полей для комментария и голосования.
+ * @param {Object} element - DOM элемент для которгго осуществляется блокировка.
+ */
+const block = (element) => {
+  const containerComment = element.querySelector(`.${Selector.COMMENT_INPUT}`);
+  const votingContainers = element.querySelectorAll(`.${Selector.RATING_INPUT}`);
+  containerComment.disabled = true;
+  votingContainers.forEach((it) => {
+    it.disabled = true;
+  });
+};
+
+/**
+ * Разблокировка полей для комментария и голосования.
+ * @param {Object} element - DOM элемент для которгго осуществляется разблокировка.
+ */
+const unblock = (element) => {
+  const containerComment = element.querySelector(`.${Selector.COMMENT_INPUT}`);
+  const votingContainers = element.querySelectorAll(`.${Selector.RATING_INPUT}`);
+  containerComment.disabled = false;
+  votingContainers.forEach((it) => {
+    it.disabled = false;
+  });
+};
+
+/**
  * Отрисовка карточек фильмов на странице.
  * @param {object} films - коллекция обьектов для торисовки.
  * @param {object} container - DOM элемент, в котором будет выполняться отрисовка.
  * @param {bool} filter - текущий фильтр.
- * @param {string} searchPrase - поисковая фраза
+ * @param {string} searchPrase - поисковая фраза.
  * @param {bool} isControl - признак отрисовки контролов для обьекта.
  */
 const renderFilmList = (films, container, filter = `all`, searchPrase = ``) => {
@@ -114,7 +143,7 @@ const renderFilmList = (films, container, filter = `all`, searchPrase = ``) => {
         renderFilters(films, elementDom.FILTERS);
         renderFilmList(films, elementDom.FILMS, filter);
         activeFilter = setActiveFilter(elementDom.FILTERS, filter);
-        reserSearch();
+        clearSearch();
       });
     };
 
@@ -143,33 +172,15 @@ const renderFilmList = (films, container, filter = `all`, searchPrase = ``) => {
       elementDom.BODY.appendChild(popup);
 
       const updateDetail = (movie) => {
-        block();
+        block(filmDetailComponent.element);
         api.updateFilm({id: movie.id, data: movie.toRAW()})
           .then(() => {
-            unblock();
+            unblock(filmDetailComponent.element);
           })
           .catch(() => {
             filmDetailComponent.shake();
-            unblock();
+            unblock(filmDetailComponent.element);
           });
-      };
-
-      const block = () => {
-        const containerComment = filmDetailComponent.element.querySelector(`.${Selector.COMMENT_INPUT}`);
-        const votingContainers = filmDetailComponent.element.querySelectorAll(`.${Selector.RATING_INPUT}`);
-        containerComment.disabled = true;
-        votingContainers.forEach((it) => {
-          it.disabled = true;
-        });
-      };
-
-      const unblock = () => {
-        const containerComment = filmDetailComponent.element.querySelector(`.${Selector.COMMENT_INPUT}`);
-        const votingContainers = filmDetailComponent.element.querySelectorAll(`.${Selector.RATING_INPUT}`);
-        containerComment.disabled = false;
-        votingContainers.forEach((it) => {
-          it.disabled = false;
-        });
       };
 
       filmDetailComponent.onAddToWatchList = (bool) => {
@@ -192,14 +203,14 @@ const renderFilmList = (films, container, filter = `all`, searchPrase = ``) => {
         film.userRating = newData;
         const votingFilelds = filmDetailComponent.element.querySelectorAll(`.${Selector.RATING_LABEL}`);
         const userRating = filmDetailComponent.element.querySelector(`.${Selector.USER_RATING}`);
-        block();
+        block(filmDetailComponent.element);
         userRating.innerHTML = ``;
         votingFilelds.forEach((it) => {
           it.style.backgroundColor = `gray`;
         });
         api.updateFilm({id: film.id, data: film.toRAW()})
           .then(() => {
-            unblock();
+            unblock(filmDetailComponent.element);
             votingFilelds.forEach((it) => {
               it.removeAttribute(`style`);
             });
@@ -210,13 +221,13 @@ const renderFilmList = (films, container, filter = `all`, searchPrase = ``) => {
             votingFilelds.forEach((it) => {
               it.style.backgroundColor = `red`;
             });
-            unblock();
+            unblock(filmDetailComponent.element);
           });
       };
 
       filmDetailComponent.onChangeComment = (newData) => {
         film.comments = newData;
-        block();
+        block(filmDetailComponent.element);
         const commentField = filmDetailComponent.element.querySelector(`.${Selector.COMMENT_INPUT}`);
         const commentList = filmDetailComponent.element.querySelector(`.${Selector.COMMENTS}`);
         const commentEmoji = filmDetailComponent.element.querySelector(`.${Selector.COMMENT_EMOJI}`);
@@ -230,14 +241,14 @@ const renderFilmList = (films, container, filter = `all`, searchPrase = ``) => {
             commentField.removeAttribute(`style`);
             commentField.value = ``;
             commentEmoji.checked = false;
-            unblock();
+            unblock(filmDetailComponent.element);
           })
           .catch(() => {
             filmDetailComponent.shake();
             commentField.style.border = `solid 6px red`;
             commentField.style.padding = `10px 10px`;
             commentField.style.backgroundColor = `#f6f6f6`;
-            unblock();
+            unblock(filmDetailComponent.element);
           });
       };
 
@@ -246,7 +257,6 @@ const renderFilmList = (films, container, filter = `all`, searchPrase = ``) => {
         renderFilters(films, elementDom.FILTERS);
         if (filter === FiltersName.SEARCH) {
           const searchFiled = document.querySelector(`.${Selector.SEARCH_FILED}`);
-          console.log(searchFiled.value);
           renderFilmList(films, elementDom.FILMS, filter, searchFiled.value);
         } else {
           renderFilmList(films, elementDom.FILMS, filter);
@@ -291,9 +301,7 @@ const renderStatistic = () => {
         let newCollection = films;
         switch (filterName) {
           case `today`:
-            newCollection = Object.values(films).filter((it) => {
-              return moment(it.watchedDate).isBetween(moment().startOf(`day`), moment().endOf(`day`));
-            });
+            newCollection = Object.values(films).filter((it) => moment(it.watchedDate).isBetween(moment().startOf(`day`), moment().endOf(`day`)));
             break;
           case `week`:
             newCollection = Object.values(films).filter((it) => moment(it.watchedDate).isBetween(moment().startOf(`week`), moment().endOf(`week`)));

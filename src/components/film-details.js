@@ -88,17 +88,22 @@ export default class FilmDetails extends Component {
     }
   }
 
+  _showCommentControl(isShow = false) {
+    const commentControl = this._element.querySelector(`.${Selector.USER_RATING_CONTROL}`);
+    if (isShow) {
+      commentControl.classList.remove(Selector.HIDDEN);
+    } else {
+      commentControl.classList.add(Selector.HIDDEN);
+    }
+  }
+
   _onAddComment(evt) {
     if (evt.keyCode === ENTER_KEYCODE && evt.ctrlKey && typeof this._onComment === `function`) {
       const formData = new FormData(this._element.querySelector(`.${Selector.FORM}`));
       const newData = this._processForm(formData);
-      const commentControl = this._element.querySelector(`.${Selector.DELETE_COMMENT}`);
-      const watchedStatus = this._element.querySelector(`.${Selector.WATHCED_STATUS}`);
       this._comments = newData.comments;
       this._onComment(this._comments);
-
-      watchedStatus.classList.innerHTML = ``;
-      commentControl.classList.remove(Selector.HIDDEN);
+      this._showCommentControl(true);
     }
   }
 
@@ -106,11 +111,21 @@ export default class FilmDetails extends Component {
     evt.preventDefault();
     if (typeof this._onComment === `function`) {
       const sortedComments = Object.values(this._comments).sort((a, b) => b.date - a.date);
-      const index = sortedComments.findIndex((it) => it.author === Settings.USER_NAME);
-      if (index >= 0) {
-        sortedComments.splice(index, 1);
+      let indexOfComment = -1;
+      const authorComments = Object.values(sortedComments).reduce((sum, it, index) => {
+        if (it.author === Settings.USER_NAME) {
+          indexOfComment = (indexOfComment === -1) ? index : indexOfComment;
+          sum++;
+        }
+        return sum;
+      }, 0);
+      if (authorComments >= 1) {
+        sortedComments.splice(indexOfComment, 1);
         this._comments = sortedComments;
         this._onComment(this._comments);
+        if (authorComments === 1) {
+          this._showCommentControl();
+        }
       }
     }
   }
