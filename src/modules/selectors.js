@@ -35,4 +35,6 @@ export default {
   SEARCH: `search`,
   FOOTER_STATISTIC: `footer__statistics`,
   PROFILE_RATING: `profile__rating`,
+  STAT_FILTERS: `statistic__filters`,
+  STAT_FILTER: `statistic__filters-input`,
 };

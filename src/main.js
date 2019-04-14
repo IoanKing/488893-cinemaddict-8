@@ -4,17 +4,17 @@ import Filter from "./components/filter";
 import {Statistics} from "./components/statistics";
 import Search from "./components/search";
 
-import Settings from "./modules/settings";
-
 import tamplateStyle from "./templates/template-animations-style";
 import navigationStat from "./templates/template-navigation-stat";
 import templateComments from "./templates/template-comment";
+import templateChart from "./templates/template-chart";
 
 import API from "./modules/api";
 import Selector from "./modules/selectors";
 import debounce from "./modules/debounce";
 import {filterFilms, getFilters, setActiveFilter} from "./modules/filtering";
 import {getRandomString, createElement, FiltersName} from "./modules/utils";
+import moment from "moment";
 
 const messages = {
   ERROR: `Something went wrong while loading movies. Check your connection or try again later`,
@@ -40,7 +40,6 @@ const apiSetting = {
 };
 
 const api = new API({endPoint: apiSetting.END_POINT, authorization: apiSetting.AUTHORIZATION});
-let currentShowCount = Settings.MOVIE_SHOW_COUNT;
 let activeFilter = `all`;
 let searchElement = null;
 
@@ -117,6 +116,7 @@ const renderFilmList = (films, container, filter = `all`, searchPrase = ``) => {
 
     filmComponent.onMarkAsWatched = (bool) => {
       film.isWatched = bool;
+      film.watchedDate = moment();
       update(film);
     };
 
@@ -170,6 +170,7 @@ const renderFilmList = (films, container, filter = `all`, searchPrase = ``) => {
 
       filmDetailComponent.onMarkAsWatched = (bool) => {
         film.isWatched = bool;
+        film.watchedDate = moment();
         updateDetail(film);
       };
 
@@ -265,9 +266,38 @@ const renderStatistic = () => {
     .then((films) => {
       const stat = new Statistics(films);
       stat.render();
-      const staticticContainer = stat.element.querySelector(`.${Selector.STATISTIC_CHART}`);
+      let staticticContainer = stat.element.querySelector(`.${Selector.STATISTIC_CHART}`);
       elementDom.MAIN.appendChild(stat.element);
-      stat.renderChart(staticticContainer);
+      templateChart(staticticContainer, stat.collection);
+
+      stat.onFilter = (evt) => {
+        const filterName = evt.target.value;
+        const oldChild = stat.element;
+        let newCollection = films;
+        switch (filterName) {
+          case `today`:
+            newCollection = Object.values(films).filter((it) => {
+              console.log(it.watchedDate);
+              return moment(it.watchedDate).isBetween(moment().startOf(`day`), moment().endOf(`day`));
+            });
+            break;
+          case `week`:
+            newCollection = Object.values(films).filter((it) => moment(it.watchedDate).isBetween(moment().startOf(`week`), moment().endOf(`week`)));
+            break;
+          case `month`:
+            newCollection = Object.values(films).filter((it) => moment(it.watchedDate).isBetween(moment().startOf(`month`), moment().endOf(`month`)));
+            break;
+          case `year`:
+            newCollection = Object.values(films).filter((it) => moment(it.watchedDate).isBetween(moment().startOf(`year`), moment().endOf(`year`)));
+            break;
+        }
+        stat.update = newCollection;
+        stat.render();
+        staticticContainer = stat.element.querySelector(`.${Selector.STATISTIC_CHART}`);
+        stat.element.querySelector(`#statistic-${filterName}`).checked = true;
+        elementDom.MAIN.replaceChild(stat.element, oldChild);
+        templateChart(staticticContainer, stat.collection);
+      };
     })
     .catch((error) => {
       elementDom.MAIN.innerText = `${messages.ERROR}

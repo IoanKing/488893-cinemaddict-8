@@ -3,7 +3,7 @@ import moment from "moment";
 import {Emoji} from "../modules/utils";
 
 const templateComment = (comment) => {
-  const nowDate = new Date();
+  const nowDate = moment();
   const timeAgo = moment.duration(moment(nowDate).diff(comment.date));
   let timeText = ``;
 

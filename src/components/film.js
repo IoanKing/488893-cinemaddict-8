@@ -1,6 +1,7 @@
 import Selector from "../modules/selectors";
 import Component from "./component";
 import templateFilm from "../templates/template-film";
+import moment from "moment";
 
 export default class Film extends Component {
   constructor(collection) {
@@ -25,6 +26,8 @@ export default class Film extends Component {
     this._isWatched = collection.isWatched;
     this._isFavorites = collection.isFavorites;
     this._isWatchList = collection.isWatchList;
+
+    this._watchDate = collection.watchedDate;
 
     this._onEditButtonClick = this._onEditButtonClick.bind(this);
     this._onAddToWatchList = this._onAddToWatchList.bind(this);
@@ -53,6 +56,7 @@ export default class Film extends Component {
     evt.preventDefault();
     if (typeof this._onWatched === `function`) {
       this._isWatched = !this._isWatched;
+      this._watchDate = moment();
       this._onWatched(this._isWatched);
     }
   }
@@ -106,6 +110,7 @@ export default class Film extends Component {
       isWatched: this._isWatched,
       isFavorites: this._isFavorites,
       isWatchList: this._isWatchList,
+      watchedDate: this._watchDate,
     };
   }
 
@@ -162,5 +167,6 @@ export default class Film extends Component {
     this._isFavorites = collection.isFavorites;
     this._isWatchList = collection.isWatchList;
     this._comments = collection.comments;
+    this._watchDate = collection.watchedDate;
   }
 }

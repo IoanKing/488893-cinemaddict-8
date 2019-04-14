@@ -3,6 +3,7 @@ import Settings from "../modules/settings";
 import Component from "./component";
 import {ENTER_KEYCODE, ESC_KEYCODE} from "../modules/utils";
 import templateFilmDetail from "../templates/template-film-details";
+import moment from "moment";
 
 const ANIMATION_TIMEOUT = 600;
 
@@ -29,6 +30,7 @@ export default class FilmDetails extends Component {
     this._isWatched = collection.isWatched;
     this._isFavorites = collection.isFavorites;
     this._isWatchList = collection.isWatchList;
+    this._watchDate = collection.watchedDate;
 
     this._onCloseButtonClick = this._onCloseButtonClick.bind(this);
     this._onAddToWatchList = this._onAddToWatchList.bind(this);
@@ -65,6 +67,7 @@ export default class FilmDetails extends Component {
   _onMarkAsWatched() {
     if (typeof this._onWatched === `function`) {
       this._isWatched = !this._isWatched;
+      this._watchDate = moment();
       this._onWatched(this._isWatched);
     }
   }
@@ -89,10 +92,12 @@ export default class FilmDetails extends Component {
     if (evt.keyCode === ENTER_KEYCODE && evt.ctrlKey && typeof this._onComment === `function`) {
       const formData = new FormData(this._element.querySelector(`.${Selector.FORM}`));
       const newData = this._processForm(formData);
-      const commentControl = this._element.querySelector(`.${Selector.USER_RATING_CONTROL}`);
+      const commentControl = this._element.querySelector(`.${Selector.DELETE_COMMENT}`);
+      const watchedStatus = this._element.querySelector(`.${Selector.WATHCED_STATUS}`);
       this._comments = newData.comments;
       this._onComment(this._comments);
 
+      watchedStatus.classList.innerHTML = ``;
       commentControl.classList.remove(Selector.HIDDEN);
     }
   }
@@ -129,7 +134,7 @@ export default class FilmDetails extends Component {
       }
     }
     newComment.author = Settings.USER_NAME;
-    newComment.date = new Date();
+    newComment.date = moment();
 
     if (newComment.comment.trim() !== ``) {
       entry.comments.push(newComment);
@@ -187,6 +192,7 @@ export default class FilmDetails extends Component {
       isWatched: this._isWatched,
       isFavorites: this._isFavorites,
       isWatchList: this._isWatchList,
+      watchedDate: this._watchDate,
     };
   }
 
