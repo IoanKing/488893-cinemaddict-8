@@ -26,7 +26,7 @@ const filterFilms = (films, filterName, text = ``) => {
       break;
     case FiltersName.SEARCH:
       const regMatch = new RegExp(`${(text.length > 0) ? `${text.trim()}` : ``}`, `i`);
-      data = Object.values(films).filter((it) => (regMatch.test(it.title) || regMatch.test(it.original)));
+      data = Object.values(films).filter((it) => regMatch.test(it.title));
       break;
     case FiltersName.TOP_RATED:
       data = Object.values(films).sort((a, b) => b.totalRating - a.totalRating).slice(0, Settings.DEFAULT_EXTRA_COUNT);

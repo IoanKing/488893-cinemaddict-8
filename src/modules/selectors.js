@@ -7,6 +7,7 @@ export default {
   CONTAINER: `films-list__container`,
   ALL_MOVIE: `all-movie`,
   TOP_MOVIE: `top-movie`,
+  POPUP: `film-details`,
   FORM: `film-details__inner`,
   COMMENTED_MOVIE: `commented-movie`,
   COMMENTS: `film-details__comments-list`,
@@ -37,5 +38,6 @@ export default {
   PROFILE_RATING: `profile__rating`,
   STAT_FILTERS: `statistic__filters`,
   STAT_FILTER: `statistic__filters-input`,
-  SEARCH_FILED: `search__field`
+  SEARCH_FILED: `search__field`,
+  SHOW_MORE: `films-list__show-more`
 };

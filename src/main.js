@@ -33,6 +33,7 @@ const elementDom = {
   PROFILE_RATING: document.querySelector(`.${Selector.PROFILE_RATING}`),
   HEAD: document.querySelector(`${Selector.HEAD}`),
   SEARCH: document.querySelector(`.${Selector.SEARCH}`),
+  SHOW_MORE: document.querySelector(`.${Selector.SHOW_MORE}`),
 };
 
 const api = new API({endPoint: settings.END_POINT, authorization: settings.AUTHORIZATION});
@@ -40,6 +41,8 @@ const global = {
   activeFilter: null,
   searchElement: null,
   filmsCollection: null,
+  filteredCollection: null,
+  filmsCount: settings.MOVIE_SHOW_COUNT,
 };
 
 /**
@@ -68,8 +71,8 @@ const renderFilters = (Films, container) => {
       api.getFilms()
       .then((films) => {
         global.filmsCollection = films;
-        const filteredFilms = filterFilms(films, filterName);
-        renderFilmList(filteredFilms, elementDom.FILMS);
+        global.filmsCount = Math.min(films.length, settings.MOVIE_SHOW_COUNT);
+        renderShowMoreCollection(films, filterName);
         clearSearch();
       })
       .catch((error) => {
@@ -113,12 +116,12 @@ const unblock = (element) => {
 
 /**
  * Отправка обновленных данных на сервер, и перерисовка страницы.
- * @param {*} updateData - Обновленные данные.
+ * @param {Object} updateData - Обновленные данные.
  */
 const updateCollection = (updateData) => {
   api.updateFilm({id: updateData.id, data: updateData.toRAW()})
   .then(() => {
-    updatePage();
+    refreshPage();
     clearSearch();
   });
 };
@@ -141,10 +144,33 @@ const updatePopup = (collection, updateData) => {
 };
 
 /**
+ * Перерисовывает страниц
+ */
+const refreshPage = () => {
+  const searchFiled = document.querySelector(`.${Selector.SEARCH_FILED}`);
+
+  renderFilters(global.filmsCollection, elementDom.FILTERS);
+  setActiveFilter(elementDom.FILTERS, global.activeFilter);
+
+  elementDom.FILMS.innerHTML = ``;
+
+  if (searchFiled.value !== ``) {
+    renderShowMoreCollection(global.filmsCollection, FiltersName.SEARCH, searchFiled.value);
+  } else {
+    renderShowMoreCollection(global.filmsCollection, global.activeFilter);
+  }
+};
+
+/**
  * Создание/открытие popup.
  * @param {Object} data - Данные для формирования popup
  */
 const renderPopup = (data) => {
+  const oldPopup = elementDom.BODY.querySelector(`.${Selector.POPUP}`);
+  if (oldPopup) {
+    elementDom.BODY.removeChild(oldPopup);
+  }
+
   const filmDetailComponent = new FilmDetail(data);
   elementDom.BODY.appendChild(filmDetailComponent.render());
 
@@ -221,28 +247,9 @@ const renderPopup = (data) => {
   };
 
   filmDetailComponent.onClose = () => {
-    elementDom.BODY.removeChild(filmDetailComponent.element);
     filmDetailComponent.unrender();
-    updatePage();
+    refreshPage();
   };
-};
-
-/**
- * Перерисовывает страниц
- */
-const updatePage = () => {
-  const searchFiled = document.querySelector(`.${Selector.SEARCH_FILED}`);
-
-  renderFilters(global.filmsCollection, elementDom.FILTERS);
-  setActiveFilter(elementDom.FILTERS, global.activeFilter);
-
-  if (searchFiled.value !== ``) {
-    const searchedFilms = filterFilms(global.filmsCollection, FiltersName.SEARCH, searchFiled.value);
-    renderFilmList(searchedFilms, elementDom.FILMS);
-  } else {
-    const films = filterFilms(global.filmsCollection, global.activeFilter);
-    renderFilmList(films, elementDom.FILMS);
-  }
 };
 
 /**
@@ -252,8 +259,6 @@ const updatePage = () => {
  * @param {bool} isShowDetail - признак отрисовки контролов для обьекта.
  */
 const renderFilmList = (films, container, isShowDetail = true) => {
-  container.innerHTML = ``;
-
   for (const film of films) {
     const filmComponent = new Film(film);
     filmComponent.isShowDetail = isShowDetail;
@@ -358,6 +363,8 @@ const renderStatistic = () => {
  */
 const searchRender = (collection, text) => {
   const films = filterFilms(collection, FiltersName.SEARCH, text);
+  global.filteredCollection = films;
+  elementDom.FILMS.innerHTML = ``;
   renderFilmList(films, elementDom.FILMS);
 };
 
@@ -407,6 +414,39 @@ const renderProfille = (collection) => {
 };
 
 /**
+ * Отрисовка страницы с ограниченым выводом элементов.
+ * @param {object} collection - коллекция обьектов.
+ * @param {string} filter - фильтр.
+ * @param {string} text - поисковая фраза (необязательно)
+ */
+const renderShowMoreCollection = (collection, filter, text = ``) => {
+  global.filteredCollection = filterFilms(collection, filter, text);
+  const slicedCollection = global.filteredCollection.slice(0, global.filmsCount);
+  elementDom.FILMS.innerHTML = ``;
+  renderFilmList(slicedCollection, elementDom.FILMS);
+  elementDom.SHOW_MORE.classList.remove(Selector.HIDDEN);
+  elementDom.SHOW_MORE.removeEventListener(`click`, onShowMoreClick);
+  elementDom.SHOW_MORE.addEventListener(`click`, onShowMoreClick);
+
+  if (global.filmsCount >= global.filteredCollection.length) {
+    elementDom.SHOW_MORE.classList.add(Selector.HIDDEN);
+  }
+};
+
+const onShowMoreClick = (evt) => {
+  evt.preventDefault();
+  const moreCollection = global.filteredCollection.slice(global.filmsCount, global.filmsCount + settings.MOVIE_SHOW_COUNT);
+  global.filmsCount = global.filmsCount + settings.MOVIE_SHOW_COUNT;
+
+  renderFilmList(moreCollection, elementDom.FILMS);
+
+  if (global.filmsCount >= global.filteredCollection.length) {
+    elementDom.SHOW_MORE.classList.add(Selector.HIDDEN);
+    elementDom.SHOW_MORE.removeEventListener(`click`, onShowMoreClick);
+  }
+};
+
+/**
  * Инициализация скриптов для сайта.
  *  Запускает функцию отрисовки фильтров;
  *  Запускает функцию установки активного фильтра;
@@ -423,11 +463,15 @@ const init = () => {
       renderFilters(films, elementDom.FILTERS);
       global.activeFilter = setActiveFilter(elementDom.FILTERS, FiltersName.ALL);
 
-      const allFilms = filterFilms(films, global.activeFilter);
-      renderFilmList(allFilms, elementDom.FILMS, global.activeFilter);
+      global.filmsCount = Math.min(films.length, settings.MOVIE_SHOW_COUNT);
+      renderShowMoreCollection(films, global.activeFilter);
+
       const topRatedFilms = filterFilms(films, FiltersName.TOP_RATED);
+      elementDom.TOP_RATING.innerHTML = ``;
       renderFilmList(topRatedFilms, elementDom.TOP_RATING, false);
+
       const topCommentedFilms = filterFilms(films, FiltersName.TOP_RATED);
+      elementDom.TOP_COMMENTED.innerHTML = ``;
       renderFilmList(topCommentedFilms, elementDom.TOP_COMMENTED, false);
 
       global.searchElement = renderSearch(films);
