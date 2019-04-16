@@ -13,7 +13,7 @@ import API from "./modules/api";
 import Selector from "./modules/selectors";
 import debounce from "./modules/debounce";
 import {filterFilms, getFilters, setActiveFilter} from "./modules/filtering";
-import {createElement, FiltersName} from "./modules/utils";
+import {createElement, FiltersName, getFilteredData} from "./modules/utils";
 import moment from "moment";
 import settings from "./modules/settings";
 
@@ -123,6 +123,10 @@ const updateCollection = (updateData) => {
   .then(() => {
     refreshPage();
     clearSearch();
+  })
+  .catch((error) => {
+    elementDom.MAIN.innerText = `${messages.ERROR}
+    ${error}`;
   });
 };
 
@@ -173,6 +177,7 @@ const renderPopup = (data) => {
 
   const filmDetailComponent = new FilmDetail(data);
   elementDom.BODY.appendChild(filmDetailComponent.render());
+  const watchedStatus = filmDetailComponent.element.querySelector(`.${Selector.WATCHED_STATUS}`);
 
   filmDetailComponent.onAddToWatchList = (bool) => {
     data.isWatchList = bool;
@@ -182,6 +187,13 @@ const renderPopup = (data) => {
   filmDetailComponent.onMarkAsWatched = (bool) => {
     data.isWatched = bool;
     data.watchedDate = moment();
+    if (data.isWatched) {
+      watchedStatus.innerText = `already watched`;
+      watchedStatus.classList.add(`${Selector.WATCHED_STATUS}--active`);
+    } else {
+      watchedStatus.innerText = `will watch`;
+      watchedStatus.classList.remove(`${Selector.WATCHED_STATUS}--active`);
+    }
     updatePopup(filmDetailComponent.element, data);
   };
 
@@ -302,31 +314,6 @@ const onClickStat = (evt) => {
 };
 
 /**
- * Фильтрация коллекции по заданному фильтру.
- * @param {object} collection - Начальная коллекция.
- * @param {string} filterName - Имя фильтра.
- * @return {object} - отфильтрованная коллекция.
- */
-const getFilteredCollection = (collection, filterName = FiltersName.ALL) => {
-  let newCollection = collection;
-  switch (filterName) {
-    case `today`:
-      newCollection = Object.values(collection).filter((it) => moment(it.watchedDate).isBetween(moment().startOf(`day`), moment().endOf(`day`)));
-      break;
-    case `week`:
-      newCollection = Object.values(collection).filter((it) => moment(it.watchedDate).isBetween(moment().startOf(`week`), moment().endOf(`week`)));
-      break;
-    case `month`:
-      newCollection = Object.values(collection).filter((it) => moment(it.watchedDate).isBetween(moment().startOf(`month`), moment().endOf(`month`)));
-      break;
-    case `year`:
-      newCollection = Object.values(collection).filter((it) => moment(it.watchedDate).isBetween(moment().startOf(`year`), moment().endOf(`year`)));
-      break;
-  }
-  return newCollection;
-};
-
-/**
  * Рендерит страницу с статистикой пользователя.
  */
 const renderStatistic = () => {
@@ -335,19 +322,19 @@ const renderStatistic = () => {
       global.filmsCollection = films;
       const stat = new Statistics(films);
       stat.render();
-      let staticticContainer = stat.element.querySelector(`.${Selector.STATISTIC_CHART}`);
+      let statisticContainer = stat.element.querySelector(`.${Selector.STATISTIC_CHART}`);
       elementDom.MAIN.appendChild(stat.element);
-      templateChart(staticticContainer, stat.collection);
+      templateChart(statisticContainer, stat.collection);
 
       stat.onFilter = (evt) => {
         const filterName = evt.target.value;
         const oldChild = stat.element;
-        stat.update = getFilteredCollection(films, filterName);
+        stat.update = getFilteredData(films, filterName);
         stat.render();
-        staticticContainer = stat.element.querySelector(`.${Selector.STATISTIC_CHART}`);
+        statisticContainer = stat.element.querySelector(`.${Selector.STATISTIC_CHART}`);
         stat.element.querySelector(`#statistic-${filterName}`).checked = true;
         elementDom.MAIN.replaceChild(stat.element, oldChild);
-        templateChart(staticticContainer, stat.collection);
+        templateChart(statisticContainer, stat.collection);
       };
     })
     .catch((error) => {
@@ -361,11 +348,9 @@ const renderStatistic = () => {
  * @param {object} collection - коллекция обьектов
  * @param {string} text - Поисковая фраза
  */
-const searchRender = (collection, text) => {
-  const films = filterFilms(collection, FiltersName.SEARCH, text);
-  global.filteredCollection = films;
-  elementDom.FILMS.innerHTML = ``;
-  renderFilmList(films, elementDom.FILMS);
+const renderSearchResult = (collection, text) => {
+  global.filmsCount = settings.MOVIE_SHOW_COUNT;
+  renderShowMoreCollection(collection, FiltersName.SEARCH, text);
 };
 
 /**
@@ -377,9 +362,8 @@ const renderSearch = (collection) => {
   const searchComponent = new Search();
   elementDom.SEARCH.innerHTML = ``;
   elementDom.SEARCH.insertAdjacentElement(`beforeend`, searchComponent.render());
-
   searchComponent.onChange = () => {
-    debounce(searchRender(collection, searchComponent.element.value));
+    debounce(renderSearchResult(collection, searchComponent.element.value));
   };
 
   return searchComponent.element;

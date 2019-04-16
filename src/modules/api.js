@@ -31,17 +31,6 @@ const API = class {
       .then(ModelFilm.parseFilms);
   }
 
-  createFilm({film}) {
-    return this._load({
-      url: `movies`,
-      method: Method.POST,
-      body: JSON.stringify(film),
-      headers: new Headers({'Content-Type': `application/json`})
-    })
-      .then(toJSON)
-      .then(ModelFilm.parseFilm);
-  }
-
   updateFilm({id, data}) {
     return this._load({
       url: `movies/${id}`,
@@ -51,10 +40,6 @@ const API = class {
     })
       .then(toJSON)
       .then(ModelFilm.parseFilm);
-  }
-
-  deleteFilms({id}) {
-    return this._load({url: `movie/${id}`, method: Method.DELETE});
   }
 
   _load({url, method = Method.GET, body = null, headers = new Headers()}) {

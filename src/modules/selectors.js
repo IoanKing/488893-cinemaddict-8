@@ -39,5 +39,6 @@ export default {
   STAT_FILTERS: `statistic__filters`,
   STAT_FILTER: `statistic__filters-input`,
   SEARCH_FILED: `search__field`,
-  SHOW_MORE: `films-list__show-more`
+  SHOW_MORE: `films-list__show-more`,
+  WATCHED_STATUS: `film-details__watched-status`
 };

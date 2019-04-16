@@ -98,7 +98,7 @@ export default class FilmDetails extends Component {
   }
 
   _onAddComment(evt) {
-    if (evt.keyCode === ENTER_KEYCODE && evt.ctrlKey && typeof this._onComment === `function`) {
+    if (evt.keyCode === ENTER_KEYCODE && (evt.metaKey || evt.ctrlKey) && typeof this._onComment === `function`) {
       const formData = new FormData(this._element.querySelector(`.${Selector.FORM}`));
       const newData = this._processForm(formData);
       this._comments = newData.comments;

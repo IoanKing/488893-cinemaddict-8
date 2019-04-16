@@ -1,10 +1,7 @@
-const MIN_DEFAUT_RANDOM = 0;
-const MAX_DEFAUT_RANDOM = 30;
+import moment from "moment";
 
 const ENTER_KEYCODE = 10;
 const ESC_KEYCODE = 27;
-
-const DEBOUNCE_INTERVAL = 600;
 
 const Emoji = {
   "sleeping": `😴`,
@@ -29,28 +26,11 @@ const FiltersName = {
   TOP_COMMENTED: `top-commented`,
 };
 
-/**
- * Генерация случайного числа на заданном интервале.
- * @param {number} min минимальное значение интервала.
- * @param {number} max максимальнео значение интервала.
- * @return {number} сгенерированное число.
- */
-const getRandomInt = (min = MIN_DEFAUT_RANDOM, max = MAX_DEFAUT_RANDOM) => Math.floor(Math.random() * (max - min)) + min;
-
-/**
- * Генерация случайного дробного числа на заданном интервале.
- * @param {number} min минимальное значение интервала.
- * @param {number} max максимальнео значение интервала.
- * @return {number} сгенерированное дробное число.
- */
-const getRandomFloat = (min = MIN_DEFAUT_RANDOM, max = MAX_DEFAUT_RANDOM) => getRandomInt(min, max) + Math.floor(Math.random() * 10) / 10;
-
-/**
- * Выбор случайного элемента из коллекции объектов.
- * @param {object} collection коллекция объектов.
- * @return {object} элемент коллекции объектов.
- */
-const getRandomElement = (collection) => collection[getRandomInt(0, collection.length)];
+const PeriodNames = new Map();
+PeriodNames.set(`today`, `day`);
+PeriodNames.set(`week`, `week`);
+PeriodNames.set(`month`, `month`);
+PeriodNames.set(`year`, `year`);
 
 /**
  * Создание DOM элемента на основании шаблона.
@@ -80,33 +60,25 @@ const getRandomString = (n = 15) => {
 };
 
 /**
- * debounce
- *
- * @param {function} cb Callback to be executed after debounce
- * @param {int} wait Time to wait before function execution
- * @return {function(...[*])}
+ * Возвращает коллекцию отфильтрованную по заданному периоду.
+ * @param {object} collection - обрабатываемая коллекция.
+ * @param {string} periodName - наименование периода.
+ * @return {object} - отфильтрованная коллекция.
  */
-const debounce = (cb, wait = DEBOUNCE_INTERVAL) => {
-  let timeout = null;
-
-  return () => {
-    if (timeout) {
-      clearTimeout(timeout);
-    }
-    timeout = setTimeout(cb(), wait);
-  };
+const getFilteredData = (collection, periodName = `year`) => {
+  if (PeriodNames.has(periodName)) {
+    return Object.values(collection).filter((it) => moment(it.watchedDate).isBetween(moment().startOf(PeriodNames.get(periodName)), moment().endOf(PeriodNames.get(periodName))));
+  }
+  return collection;
 };
 
 export {
-  getRandomInt,
-  getRandomElement,
-  getRandomFloat,
   createElement,
   Emoji,
   ChartSettings,
   getRandomString,
   ENTER_KEYCODE,
   ESC_KEYCODE,
-  debounce,
-  FiltersName
+  FiltersName,
+  getFilteredData
 };
