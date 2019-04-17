@@ -1,6 +1,6 @@
 import moment from "moment";
 
-const ENTER_KEYCODE = 10;
+const ENTER_KEYCODE = 13;
 const ESC_KEYCODE = 27;
 
 const Emoji = {
