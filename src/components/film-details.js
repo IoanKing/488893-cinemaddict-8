@@ -5,8 +5,6 @@ import {ENTER_KEYCODE, ESC_KEYCODE} from "../modules/utils";
 import templateFilmDetail from "../templates/template-film-details";
 import moment from "moment";
 
-const ANIMATION_TIMEOUT = 600;
-
 export default class FilmDetails extends Component {
   constructor(collection) {
     super();
@@ -209,10 +207,6 @@ export default class FilmDetails extends Component {
       isWatchList: this._isWatchList,
       watchedDate: this._watchDate,
     };
-  }
-
-  shake() {
-    this._element.style.animation = `shake ${ANIMATION_TIMEOUT / 1000}s`;
   }
 
   get formTemplate() {

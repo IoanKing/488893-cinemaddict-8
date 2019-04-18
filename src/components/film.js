@@ -40,7 +40,7 @@ export default class Film extends Component {
 
   _onEditButtonClick(evt) {
     if (evt.target.classList.contains(Selector.BTN_COMMENTS) && typeof this._onClick === `function`) {
-      this._onClick(evt);
+      this._onClick();
     }
   }
 

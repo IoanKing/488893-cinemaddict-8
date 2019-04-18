@@ -8,5 +8,7 @@ export default {
 
   USER_NAME: `Ivan Suslov`,
   AUTHORIZATION: `Basic ${getRandomString()}`,
-  END_POINT: `https://es8-demo-srv.appspot.com/moowle`
+  END_POINT: `https://es8-demo-srv.appspot.com/moowle`,
+
+  ANIMATION_SHAKE_TIMEOUT: 600,
 };

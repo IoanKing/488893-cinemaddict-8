@@ -9,6 +9,9 @@ const Emoji = {
   "grinning": `😀`,
 };
 
+const ERROR_MESSAGE = `Something went wrong while loading movies. Check your connection or try again later`;
+const LOAD_MESSAGE = `<h2>Loading movies...</h2>`;
+
 const ChartSettings = {
   BAR_HEIGHT: 50,
   BACKGROUND_COLOR: `#ffe800`,
@@ -80,5 +83,7 @@ export {
   ENTER_KEYCODE,
   ESC_KEYCODE,
   FiltersName,
-  getFilteredData
+  getFilteredData,
+  ERROR_MESSAGE,
+  LOAD_MESSAGE
 };
