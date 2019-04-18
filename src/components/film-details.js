@@ -239,7 +239,7 @@ export default class FilmDetails extends Component {
     this._element.querySelector(`#${Selector.FAVORITE}`)
       .addEventListener(`click`, this._onMarkAsFavorite);
     this._element.querySelector(`.${Selector.COMMENT_INPUT}`)
-      .addEventListener(`keypress`, this._onAddComment);
+      .addEventListener(`keydown`, this._onAddComment);
     this._element.querySelector(`.${Selector.DELETE_COMMENT}`)
       .addEventListener(`click`, this._onDeleteComment);
     this._element.querySelectorAll(`.${Selector.RATING_INPUT}`)
@@ -259,7 +259,7 @@ export default class FilmDetails extends Component {
     this._element.querySelector(`#${Selector.FAVORITE}`)
       .removeEventListener(`click`, this._onMarkAsFavorite);
     this._element.querySelector(`.${Selector.COMMENT_INPUT}`)
-      .removeEventListener(`keypress`, this._onAddComment);
+      .removeEventListener(`keydown`, this._onAddComment);
     this._element.querySelector(`.${Selector.DELETE_COMMENT}`)
       .removeEventListener(`click`, this._onDeleteComment);
     this._element.querySelectorAll(`.${Selector.RATING_INPUT}`)
