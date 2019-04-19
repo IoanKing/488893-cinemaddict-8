@@ -7,6 +7,11 @@ const Method = {
   DELETE: `DELETE`
 };
 
+/**
+ * Проверка статуса ответа сервера и возращение его в качестве рузультата.
+ * @param {string} response - ответ сервера.
+ * @return {string} - ответ сервера.
+ */
 const checkStatus = (response) => {
   if (response.status >= 200 && response.status < 300) {
     return response;
@@ -15,6 +20,11 @@ const checkStatus = (response) => {
   }
 };
 
+/**
+ * Перевод ответа сервера в формат JSON..
+ * @param {string} response - ответ сервера.
+ * @return {object} - json обьект.
+ */
 const toJSON = (response) => {
   return response.json();
 };

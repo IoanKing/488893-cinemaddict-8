@@ -4,7 +4,6 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 import {ChartSettings} from "../modules/utils";
 
 export default (statisticCtx, collection) => {
-  // Обязательно рассчитайте высоту canvas, она зависит от количества элементов диаграммы
   statisticCtx.height = ChartSettings.BAR_HEIGHT * collection.genres.length;
   const myChart = new Chart(statisticCtx, {
     plugins: [ChartDataLabels],
